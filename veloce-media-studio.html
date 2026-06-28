@@ -498,9 +498,11 @@ import time, subprocess, re, requests
 from bs4 import BeautifulSoup
 
 print("=========================================================")
-print("[*] El Puente Centinela Veloce (Playlists) esta en linea...")
+print("[*] El Puente Centinela Veloce esta en linea...")
 print("Selecciona la calidad en la App web y presiona 'Enviar'.")
 print("=========================================================")
+
+YT_ARGS = '--extractor-args "youtube:player_client=tv,web_safari,default" --retries 10 --fragment-retries 10'
 
 def obtener_meta_spotify(url):
     try:
@@ -523,26 +525,37 @@ while True:
     try:
         clip = subprocess.check_output(["termux-clipboard-get"]).decode("utf-8").strip()
         if clip.startswith("##VELOCE##") and clip != last_cmd:
+            last_cmd = clip
             cmd = clip.replace("##VELOCE##", "").strip()
             print("\n[>] Comando de descarga recibido!")
 
-            resultado = subprocess.run(cmd, shell=True)
-            if resultado.returncode != 0 and "spotdl" in cmd and "spotify.com" in cmd:
-                print("[!] Spotdl fallo. Iniciando autoreparacion con motor secundario...")
+            rc = subprocess.run(cmd, shell=True).returncode
+
+            # Autoreparacion yt-dlp: actualiza y reintenta con cliente alterno (arregla el HTTP 403)
+            if rc != 0 and "yt-dlp" in cmd:
+                print("[!] Fallo la descarga. Actualizando yt-dlp a la ultima version...")
+                subprocess.run("pip install --upgrade --quiet yt-dlp", shell=True)
+                cmd2 = cmd if "player_client" in cmd else cmd.replace("yt-dlp", "yt-dlp " + YT_ARGS, 1)
+                print("[~] Reintentando descarga...")
+                rc = subprocess.run(cmd2, shell=True).returncode
+
+            # Autoreparacion Spotify: motor secundario via YouTube Music
+            if rc != 0 and "spotdl" in cmd and "spotify.com" in cmd:
+                print("[!] Spotdl fallo. Motor secundario via YouTube Music...")
                 url_match = re.search(r'https?://[^\s"]+', cmd)
                 if url_match:
                     meta = obtener_meta_spotify(url_match.group(0))
                     if meta:
                         print(f"[?] Cancion identificada: '{meta}'")
-                        print("Descargando via YouTube Music en Alta Fidelidad...")
-                        subprocess.run([
+                        rc = subprocess.run([
                             "yt-dlp", "-x", "--audio-format", "mp3", "--audio-quality", "0",
                             "-P", "/sdcard/Download", "-o", "%(title)s.%(ext)s", f"ytsearch1:{meta}"
-                        ])
-                        print("[OK] Descargada con exito usando motor de respaldo!")
+                        ]).returncode
 
-            print("[OK] Proceso terminado!")
-            last_cmd = clip
+            if rc == 0:
+                print("[OK] Descarga COMPLETADA. Archivo en /sdcard/Download")
+            else:
+                print("[X] FALLO la descarga. Prueba otra calidad o revisa el enlace.")
     except Exception:
         pass
     time.sleep(1.5)
@@ -929,6 +942,10 @@ chmod +x ~/bin/termux-url-opener</code></pre>
     let isPlaylistMode = true;
     let selectedQualityProfile = "spotify-320";
 
+    // Parametros robustos para yt-dlp: evitan el HTTP 403 de YouTube usando
+    // clientes de reproductor alternativos y reintentos de fragmentos.
+    const YT_ROBUST = '--extractor-args "youtube:player_client=tv,web_safari,default" --retries 10 --fragment-retries 10';
+
     const STOCK_DATABASE = [
       {
         id: 'vid-1',
@@ -1103,16 +1120,16 @@ chmod +x ~/bin/termux-url-opener</code></pre>
 
         if (selectedQualityProfile === "video-4k") {
           profileText.innerText = isPlaylistMode ? "Playlist Video (4K/Best)" : "MP4 Video (4K Ultra HD Nativa)";
-          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist -f "bestvideo+bestaudio/best" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} -f "bestvideo+bestaudio/best" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
         } else if (selectedQualityProfile === "video-1080") {
           profileText.innerText = isPlaylistMode ? "Playlist Video (1080p)" : "MP4 Video (1080p FHD)";
-          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist -f "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080][ext=mp4]/best" --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} -f "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
         } else if (selectedQualityProfile === "video-720") {
           profileText.innerText = isPlaylistMode ? "Playlist Video (720p)" : "MP4 Video (720p HD)";
-          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist -f "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best" --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} -f "bestvideo[height<=720]+bestaudio/best[height<=720]/best" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
         } else {
           profileText.innerText = isPlaylistMode ? "Playlist Audio MP3" : "Audio Extraido MP3 (320kbps)";
-          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist -x --audio-format mp3 --audio-quality 0 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} -x --audio-format mp3 --audio-quality 0 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
         }
       }
 
@@ -1289,7 +1306,7 @@ chmod +x ~/bin/termux-url-opener</code></pre>
 
       if (dlQuality === 'dl-audio') {
         label = 'Audio MP3 (320kbps)';
-        cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist -x --audio-format mp3 --audio-quality 0 --no-mtime -o "${out}" "${target}"`;
+        cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist ${YT_ROBUST} -x --audio-format mp3 --audio-quality 0 --no-mtime -o "${out}" "${target}"`;
         qEl.innerText = label; engEl.innerText = engine;
         return;
       }
@@ -1303,7 +1320,7 @@ chmod +x ~/bin/termux-url-opener</code></pre>
         fmt = `bestvideo[height<=${h}]+bestaudio/best[height<=${h}]/best`;
       }
 
-      cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist -f "${fmt}" --merge-output-format mp4 --no-mtime -o "${out}" "${target}"`;
+      cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist ${YT_ROBUST} -f "${fmt}" --merge-output-format mp4 --no-mtime -o "${out}" "${target}"`;
       qEl.innerText = label;
       engEl.innerText = engine;
     }
