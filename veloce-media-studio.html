@@ -73,6 +73,10 @@
           <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
           Panel de Control
         </button>
+        <button onclick="switchTab('download')" id="btn-download" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/40">
+          <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
+          Descargador
+        </button>
         <button onclick="switchTab('setup')" id="btn-setup" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/40">
           <i data-lucide="settings" class="w-3.5 h-3.5"></i>
           Guia e Instalacion
@@ -281,6 +285,169 @@
             </p>
           </div>
 
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ============ TAB: DESCARGADOR MULTIPLATAFORMA ============ -->
+    <section id="tab-download" class="tab-content hidden space-y-6 animate-fade-in">
+
+      <!-- Entrada del enlace -->
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/80 rounded-2xl p-5 md:p-8 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-pink-600/10 rounded-full blur-3xl -z-10"></div>
+        <div class="max-w-3xl mx-auto space-y-3.5">
+          <div class="space-y-1 text-center md:text-left">
+            <h2 class="text-base md:text-xl font-bold text-slate-100 flex items-center justify-center md:justify-start gap-2">
+              <i data-lucide="download-cloud" class="text-pink-400 w-5 h-5"></i>
+              Descargador de Video Multiplataforma
+            </h2>
+            <p class="text-[11px] md:text-xs text-slate-400">
+              Pega un enlace de YouTube, Instagram, TikTok, X (Twitter), Facebook, Reddit, Vimeo, SoundCloud, Twitch o Dailymotion. Elige la calidad y descarga.
+            </p>
+          </div>
+
+          <div class="relative">
+            <input
+              id="dl-url-input"
+              type="url"
+              inputmode="url"
+              placeholder="https://www.youtube.com/watch?v=..."
+              oninput="dlOnUrlChange(this.value)"
+              class="w-full bg-slate-950 border-2 border-slate-800 focus:border-pink-500 rounded-xl px-4 py-3.5 text-xs md:text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-all pr-12"
+            />
+            <div id="dl-platform-badge" class="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[9px] font-bold text-slate-300 uppercase">
+              DETECTANDO
+            </div>
+          </div>
+
+          <div id="dl-platform-chips" class="flex flex-wrap gap-1.5 pt-1"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Selector de calidad -->
+        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-5">
+          <div class="border-b border-slate-800 pb-3">
+            <h3 class="text-xs md:text-sm font-bold text-slate-200 flex items-center gap-2">
+              <i data-lucide="gauge" class="w-4 h-4 text-pink-400"></i>
+              Selecciona la Calidad de Descarga
+            </h3>
+            <p class="text-[10px] text-slate-400 mt-1">Desde 4K nativo hasta audio MP3. El comando se adapta a la plataforma detectada.</p>
+          </div>
+
+          <div id="dl-quality-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div onclick="dlSelectQuality('dl-best')" id="dl-best" class="dl-quality-card p-4 rounded-xl border-2 bg-pink-600/10 border-pink-500 text-white cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">Maxima</span>
+                <span class="text-[8px] bg-amber-950 border border-amber-800 text-amber-400 font-bold px-1.5 py-0.5 rounded">4K / BEST</span>
+              </div>
+              <p class="text-[10px] text-slate-300">Resolucion nativa mas alta disponible (4K, 2K o 1080p).</p>
+            </div>
+            <div onclick="dlSelectQuality('dl-1440')" id="dl-1440" class="dl-quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">Quad HD</span>
+                <span class="text-[8px] bg-slate-900 border border-slate-800 text-slate-400 font-bold px-1.5 py-0.5 rounded">1440P</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Calidad 2K nitida para pantallas grandes.</p>
+            </div>
+            <div onclick="dlSelectQuality('dl-1080')" id="dl-1080" class="dl-quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">Full HD</span>
+                <span class="text-[8px] bg-purple-950 border border-purple-800 text-purple-300 font-bold px-1.5 py-0.5 rounded">1080P</span>
+              </div>
+              <p class="text-[10px] text-slate-400">El estandar ideal para movil y escritorio.</p>
+            </div>
+            <div onclick="dlSelectQuality('dl-720')" id="dl-720" class="dl-quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">HD Liviano</span>
+                <span class="text-[8px] bg-slate-900 border border-slate-800 text-slate-400 font-bold px-1.5 py-0.5 rounded">720P</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Descarga rapida que ahorra datos.</p>
+            </div>
+            <div onclick="dlSelectQuality('dl-480')" id="dl-480" class="dl-quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">Estandar</span>
+                <span class="text-[8px] bg-slate-900 border border-slate-800 text-slate-400 font-bold px-1.5 py-0.5 rounded">480P</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Tamano minimo para conexiones lentas.</p>
+            </div>
+            <div onclick="dlSelectQuality('dl-audio')" id="dl-audio" class="dl-quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">Solo Audio</span>
+                <span class="text-[8px] bg-pink-950 border border-pink-800 text-pink-400 font-bold px-1.5 py-0.5 rounded">MP3 320</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Extrae solo la pista de audio en alta calidad.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accion y descarga -->
+        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6 flex flex-col justify-between space-y-5">
+          <div class="space-y-3">
+            <div class="border-b border-slate-800 pb-3">
+              <h3 class="text-xs md:text-sm font-bold text-slate-200 flex items-center gap-1.5">
+                <i data-lucide="rocket" class="w-4 h-4 text-pink-400"></i>
+                Descarga tu Contenido
+              </h3>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2 text-[11px]">
+              <div class="flex justify-between text-slate-400">
+                <span>Plataforma:</span>
+                <strong id="dl-tech-platform" class="text-pink-400 font-mono">-</strong>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Calidad:</span>
+                <strong id="dl-tech-quality" class="text-slate-300 font-mono">4K / Best</strong>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Motor:</span>
+                <strong id="dl-tech-engine" class="text-emerald-400 font-mono">yt-dlp</strong>
+              </div>
+            </div>
+
+            <!-- Metodo 1: comando real (Termux) -->
+            <div class="space-y-2">
+              <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-wider block">Metodo 1: Comando real (Termux)</span>
+              <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 relative font-mono text-[9px] text-pink-300 whitespace-pre-wrap break-all leading-relaxed shadow-inner">
+                <code id="dl-compiled-cmd">Pega un enlace para generar el comando...</code>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="dlCopyCmd()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 rounded-xl text-[11px] transition-all border border-slate-700 flex items-center justify-center gap-1.5">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar
+                </button>
+                <button onclick="dlSend()" class="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-bold py-2.5 rounded-xl text-[11px] transition-all flex items-center justify-center gap-1.5">
+                  <i data-lucide="send" class="w-3.5 h-3.5"></i> Enviar a Termux
+                </button>
+              </div>
+            </div>
+
+            <!-- Metodo 2: descarga directa en navegador -->
+            <div class="space-y-2 pt-1">
+              <button onclick="dlToggleAdvanced()" class="w-full flex items-center justify-between text-[9px] font-bold text-pink-400 uppercase tracking-wider">
+                <span>Metodo 2: Descarga directa en el navegador</span>
+                <i id="dl-advanced-chevron" data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+              </button>
+              <div id="dl-advanced-panel" class="hidden space-y-2">
+                <p class="text-[9px] text-slate-500 leading-relaxed">
+                  Para descargar sin Termux necesitas una instancia de Cobalt (propia o publica con clave). Pega su API y, si aplica, tu clave:
+                </p>
+                <input id="dl-cobalt-instance" type="url" inputmode="url" placeholder="https://tu-instancia-cobalt/" class="w-full bg-slate-950 border border-slate-800 focus:border-pink-500 rounded-lg px-3 py-2.5 text-[10px] text-slate-100 placeholder-slate-600 focus:outline-none font-mono" />
+                <input id="dl-cobalt-key" type="text" placeholder="API key (opcional)" class="w-full bg-slate-950 border border-slate-800 focus:border-pink-500 rounded-lg px-3 py-2.5 text-[10px] text-slate-100 placeholder-slate-600 focus:outline-none font-mono" />
+                <button onclick="dlCobaltDownload()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold py-2.5 rounded-xl text-[11px] transition-all flex items-center justify-center gap-1.5">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i> Descargar en el navegador
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-center text-[9px] text-slate-500">
+            El Metodo 1 funciona siempre en Android via Termux. El Metodo 2 descarga directo en el navegador si tienes una instancia Cobalt.
+          </p>
         </div>
 
       </div>
@@ -725,6 +892,10 @@ chmod +x ~/bin/termux-url-opener</code></pre>
       <i data-lucide="sliders" class="w-5 h-5 mb-0.5"></i>
       <span class="text-[9px] font-bold">Control</span>
     </button>
+    <button onclick="switchTab('download')" id="mobile-btn-download" class="mobile-tab flex flex-col items-center justify-center py-1.5 text-slate-400">
+      <i data-lucide="download-cloud" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[9px] font-bold">Descargar</span>
+    </button>
     <button onclick="switchTab('setup')" id="mobile-btn-setup" class="mobile-tab flex flex-col items-center justify-center py-1.5 text-slate-400">
       <i data-lucide="settings" class="w-5 h-5 mb-0.5"></i>
       <span class="text-[9px] font-bold">Guia Termux</span>
@@ -783,6 +954,7 @@ chmod +x ~/bin/termux-url-opener</code></pre>
       lucide.createIcons();
       renderStockItems();
       onUrlChange(activeUrl);
+      dlInit();
     });
 
     // --- MANEJO DEL ENLACE DE ENTRADA ---
@@ -1037,6 +1209,165 @@ chmod +x ~/bin/termux-url-opener</code></pre>
       }, 3000);
     }
 
+
+    // --- DESCARGADOR MULTIPLATAFORMA ---
+    let dlPlatform = 'auto';
+    let dlQuality = 'dl-best';
+
+    const DL_PLATFORMS = ['YouTube', 'Instagram', 'TikTok', 'X / Twitter', 'Facebook', 'Reddit', 'Vimeo', 'SoundCloud', 'Twitch', 'Dailymotion', 'Pinterest'];
+
+    function dlInit() {
+      const chips = document.getElementById('dl-platform-chips');
+      if (chips) {
+        chips.innerHTML = DL_PLATFORMS.map(p =>
+          `<span class="text-[8px] font-bold text-slate-400 bg-slate-950 border border-slate-800 px-2 py-0.5 rounded-full">${p}</span>`
+        ).join('');
+      }
+      dlUpdateQualityUi();
+      dlCompile();
+    }
+
+    function dlDetectPlatform(url) {
+      const u = url.toLowerCase();
+      if (u.includes('youtube.com') || u.includes('youtu.be')) return 'YOUTUBE';
+      if (u.includes('instagram.com')) return 'INSTAGRAM';
+      if (u.includes('tiktok.com')) return 'TIKTOK';
+      if (u.includes('twitter.com') || u.includes('x.com')) return 'X (TWITTER)';
+      if (u.includes('facebook.com') || u.includes('fb.watch')) return 'FACEBOOK';
+      if (u.includes('reddit.com')) return 'REDDIT';
+      if (u.includes('vimeo.com')) return 'VIMEO';
+      if (u.includes('soundcloud.com')) return 'SOUNDCLOUD';
+      if (u.includes('twitch.tv')) return 'TWITCH';
+      if (u.includes('dailymotion.com') || u.includes('dai.ly')) return 'DAILYMOTION';
+      if (u.includes('pinterest.')) return 'PINTEREST';
+      if (u.trim() === '') return 'DETECTANDO';
+      return 'GENERICO';
+    }
+
+    function dlOnUrlChange(url) {
+      dlPlatform = dlDetectPlatform(url);
+      const badge = document.getElementById('dl-platform-badge');
+      badge.innerText = dlPlatform;
+      if (dlPlatform === 'DETECTANDO' || dlPlatform === 'GENERICO') {
+        badge.className = "absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[9px] font-bold text-slate-300 uppercase";
+      } else {
+        badge.className = "absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-pink-950/80 border border-pink-800 text-[9px] font-bold text-pink-400 uppercase";
+      }
+      dlCompile();
+    }
+
+    function dlSelectQuality(id) {
+      dlQuality = id;
+      dlUpdateQualityUi();
+      dlCompile();
+    }
+
+    function dlUpdateQualityUi() {
+      document.querySelectorAll('.dl-quality-card').forEach(card => {
+        card.classList.remove('bg-pink-600/10', 'border-pink-500', 'text-white');
+        card.classList.add('bg-slate-950', 'border-slate-800', 'text-slate-300');
+      });
+      const active = document.getElementById(dlQuality);
+      if (active) {
+        active.classList.remove('bg-slate-950', 'border-slate-800', 'text-slate-300');
+        active.classList.add('bg-pink-600/10', 'border-pink-500', 'text-white');
+      }
+    }
+
+    function dlCompile() {
+      const url = (document.getElementById('dl-url-input').value || '').trim();
+      const cmdEl = document.getElementById('dl-compiled-cmd');
+      const qEl = document.getElementById('dl-tech-quality');
+      const pEl = document.getElementById('dl-tech-platform');
+      const engEl = document.getElementById('dl-tech-engine');
+
+      pEl.innerText = (dlPlatform === 'DETECTANDO') ? '-' : dlPlatform;
+
+      const out = '/sdcard/Download/%(title)s.%(ext)s';
+      const target = url || '<ENLACE>';
+      let fmt, label, engine = 'yt-dlp';
+
+      if (dlQuality === 'dl-audio') {
+        label = 'Audio MP3 (320kbps)';
+        cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist -x --audio-format mp3 --audio-quality 0 --no-mtime -o "${out}" "${target}"`;
+        qEl.innerText = label; engEl.innerText = engine;
+        return;
+      }
+
+      if (dlQuality === 'dl-best') {
+        label = '4K / Best';
+        fmt = 'bestvideo+bestaudio/best';
+      } else {
+        const h = dlQuality.replace('dl-', '');
+        label = h + 'p';
+        fmt = `bestvideo[height<=${h}]+bestaudio/best[height<=${h}]/best`;
+      }
+
+      cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist -f "${fmt}" --merge-output-format mp4 --no-mtime -o "${out}" "${target}"`;
+      qEl.innerText = label;
+      engEl.innerText = engine;
+    }
+
+    function dlCopyCmd() {
+      copyText(document.getElementById('dl-compiled-cmd').innerText, 'Comando copiado al portapapeles!');
+    }
+
+    function dlSend() {
+      copyText('##VELOCE## ' + document.getElementById('dl-compiled-cmd').innerText, 'Comando enviado! Abre tu Termux de fondo.');
+    }
+
+    function dlToggleAdvanced() {
+      const panel = document.getElementById('dl-advanced-panel');
+      const chevron = document.getElementById('dl-advanced-chevron');
+      panel.classList.toggle('hidden');
+      chevron.setAttribute('data-lucide', panel.classList.contains('hidden') ? 'chevron-down' : 'chevron-up');
+      lucide.createIcons();
+    }
+
+    async function dlCobaltDownload() {
+      const url = (document.getElementById('dl-url-input').value || '').trim();
+      if (!url) { showToast('Pega un enlace primero.', 'error'); return; }
+
+      let instance = (document.getElementById('dl-cobalt-instance').value || '').trim();
+      const key = (document.getElementById('dl-cobalt-key').value || '').trim();
+      if (!instance) {
+        showToast('Configura una instancia Cobalt o usa el Metodo 1 (Termux).', 'error');
+        document.getElementById('dl-advanced-panel').classList.remove('hidden');
+        return;
+      }
+      if (!/^https?:\/\//i.test(instance)) instance = 'https://' + instance;
+
+      const videoQuality = dlQuality === 'dl-best' ? '4320' : dlQuality.replace('dl-', '');
+      const downloadMode = dlQuality === 'dl-audio' ? 'audio' : 'auto';
+
+      try {
+        showToast('Conectando con la instancia Cobalt...');
+        const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+        if (key) headers['Authorization'] = 'Bearer ' + key;
+
+        const res = await fetch(instance, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ url, videoQuality, audioFormat: 'mp3', downloadMode })
+        });
+        const data = await res.json();
+
+        if (data && (data.status === 'tunnel' || data.status === 'redirect') && data.url) {
+          triggerFileDownload(data.url, 'veloce-download');
+          showToast('Descarga iniciada!');
+        } else if (data && data.status === 'picker' && Array.isArray(data.picker) && data.picker.length) {
+          data.picker.forEach((item, i) => {
+            if (item.url) setTimeout(() => triggerFileDownload(item.url, `veloce-${i + 1}`), i * 800);
+          });
+          showToast('Descargando elementos...');
+        } else {
+          const code = (data && data.error && data.error.code) ? data.error.code : (data && data.status) || 'desconocido';
+          showToast('La instancia respondio: ' + code, 'error');
+        }
+      } catch (e) {
+        showToast('No se pudo conectar con la instancia Cobalt.', 'error');
+      }
+    }
 
     // --- SIMULADOR WEB ---
     let selectedFormatId = null;
