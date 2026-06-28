@@ -490,10 +490,10 @@
             <div class="space-y-2">
               <span class="w-6 h-6 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center text-xs font-bold">2</span>
               <h4 class="text-xs font-bold text-slate-200">2. Crear Centinela Inteligente</h4>
-              <p class="text-[10px] text-slate-400 leading-relaxed">Descarga el centinela ya listo desde tu repositorio (una sola linea, sin problemas al pegar). Trae autoreparacion y arreglo del error 403:</p>
+              <p class="text-[10px] text-slate-400 leading-relaxed">Descarga el centinela ya listo desde tu repositorio. Lo guarda en la carpeta home de Termux (<code class="text-purple-300">~</code>) para que siempre lo encuentre:</p>
             </div>
             <div class="relative pt-2">
-              <code id="setup-cmd-2" class="block bg-slate-900 p-2.5 rounded text-[9px] font-mono border border-slate-800 text-purple-300 break-all select-all pr-8">curl -fsSL -o centinela_veloce.py https://raw.githubusercontent.com/Darkar520/VELOCE-MEDIA-/main/centinela_veloce.py</code>
+              <code id="setup-cmd-2" class="block bg-slate-900 p-2.5 rounded text-[9px] font-mono border border-slate-800 text-purple-300 break-all select-all pr-8">curl -fsSL -o ~/centinela_veloce.py https://raw.githubusercontent.com/Darkar520/VELOCE-MEDIA-/main/centinela_veloce.py && echo "Descargado OK"</code>
               <button onclick="copyToClipboard('setup-cmd-2')" class="absolute right-2 bottom-2 text-slate-400 hover:text-slate-200">
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
               </button>
@@ -505,10 +505,10 @@
             <div class="space-y-2">
               <span class="w-6 h-6 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center text-xs font-bold">3</span>
               <h4 class="text-xs font-bold text-slate-200">3. Encender</h4>
-              <p class="text-[10px] text-slate-400 leading-relaxed">Arranca el puente interactivo. Ahora solo copia el enlace en la app, elige calidad y se descargara automaticamente.</p>
+              <p class="text-[10px] text-slate-400 leading-relaxed">Arranca el centinela. Como el curl lo descargo en la carpeta actual, ejecutalo directamente desde ahi:</p>
             </div>
             <div class="relative pt-2">
-              <code id="setup-cmd-3" class="block bg-slate-900 p-2.5 rounded text-[9px] font-mono border border-slate-800 text-purple-300 break-all select-all pr-8">python centinela_veloce.py</code>
+              <code id="setup-cmd-3" class="block bg-slate-900 p-2.5 rounded text-[9px] font-mono border border-slate-800 text-purple-300 break-all select-all pr-8">cd /sdcard/Download && python centinela_veloce.py</code>
               <button onclick="copyToClipboard('setup-cmd-3')" class="absolute right-2 bottom-2 text-slate-400 hover:text-slate-200">
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
               </button>
