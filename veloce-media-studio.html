@@ -879,6 +879,9 @@ chmod +x ~/bin/termux-url-opener</code></pre>
     // Parametros robustos para yt-dlp: evitan el HTTP 403 de YouTube usando
     // clientes de reproductor alternativos y reintentos de fragmentos.
     const YT_ROBUST = '--extractor-args "youtube:player_client=tv,web_safari,default" --retries 10 --fragment-retries 10';
+    // Muestra en Termux la calidad REAL que yt-dlp selecciono antes de descargar
+    const YT_PRINT_VIDEO = '--print "before_dl:[CALIDAD REAL] %(height)sp | %(vcodec)s | %(title).45s"';
+    const YT_PRINT_AUDIO = '--print "before_dl:[CALIDAD REAL] Audio %(abr)s kbps | %(acodec)s | %(title).45s"';
 
     const STOCK_DATABASE = [
       {
@@ -1054,16 +1057,16 @@ chmod +x ~/bin/termux-url-opener</code></pre>
 
         if (selectedQualityProfile === "video-4k") {
           profileText.innerText = isPlaylistMode ? "Playlist Video (4K/Best)" : "MP4 Video (4K Ultra HD Nativa)";
-          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} -f "bestvideo+bestaudio/best" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} ${YT_PRINT_VIDEO} -f "bestvideo+bestaudio/best" --format-sort "res,+size" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
         } else if (selectedQualityProfile === "video-1080") {
           profileText.innerText = isPlaylistMode ? "Playlist Video (1080p)" : "MP4 Video (1080p FHD)";
-          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} -f "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} ${YT_PRINT_VIDEO} -f "bestvideo[height<=1080]+bestaudio/best[height<=1080]" --format-sort "res:1080,+size" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
         } else if (selectedQualityProfile === "video-720") {
           profileText.innerText = isPlaylistMode ? "Playlist Video (720p)" : "MP4 Video (720p HD)";
-          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} -f "bestvideo[height<=720]+bestaudio/best[height<=720]/best" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} ${YT_PRINT_VIDEO} -f "bestvideo[height<=720]+bestaudio/best[height<=720]" --format-sort "res:720,+size" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
         } else {
           profileText.innerText = isPlaylistMode ? "Playlist Audio MP3" : "Audio Extraido MP3 (320kbps)";
-          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} -x --audio-format mp3 --audio-quality 0 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} ${YT_PRINT_AUDIO} -x --audio-format mp3 --audio-quality 0 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
         }
       }
 
@@ -1240,7 +1243,7 @@ chmod +x ~/bin/termux-url-opener</code></pre>
 
       if (dlQuality === 'dl-audio') {
         label = 'Audio MP3 (320kbps)';
-        cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist ${YT_ROBUST} -x --audio-format mp3 --audio-quality 0 --no-mtime -o "${out}" "${target}"`;
+        cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist ${YT_ROBUST} ${YT_PRINT_AUDIO} -x --audio-format mp3 --audio-quality 0 --no-mtime -o "${out}" "${target}"`;
         qEl.innerText = label; engEl.innerText = engine;
         return;
       }
@@ -1248,13 +1251,13 @@ chmod +x ~/bin/termux-url-opener</code></pre>
       if (dlQuality === 'dl-best') {
         label = '4K / Best';
         fmt = 'bestvideo+bestaudio/best';
+        cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist ${YT_ROBUST} ${YT_PRINT_VIDEO} -f "${fmt}" --format-sort "res,+size" --merge-output-format mp4 --no-mtime -o "${out}" "${target}"`;
       } else {
         const h = dlQuality.replace('dl-', '');
         label = h + 'p';
-        fmt = `bestvideo[height<=${h}]+bestaudio/best[height<=${h}]/best`;
+        fmt = `bestvideo[height<=${h}]+bestaudio/best[height<=${h}]`;
+        cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist ${YT_ROBUST} ${YT_PRINT_VIDEO} -f "${fmt}" --format-sort "res:${h},+size" --merge-output-format mp4 --no-mtime -o "${out}" "${target}"`;
       }
-
-      cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist ${YT_ROBUST} -f "${fmt}" --merge-output-format mp4 --no-mtime -o "${out}" "${target}"`;
       qEl.innerText = label;
       engEl.innerText = engine;
     }

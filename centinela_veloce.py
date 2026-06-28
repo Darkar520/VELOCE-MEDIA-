@@ -26,6 +26,21 @@ def obtener_meta_spotify(url):
     return None
 
 
+def mostrar_calidad_solicitada(cmd):
+    """Muestra en pantalla la calidad que el usuario selecciono."""
+    if "-x" in cmd or "--audio-format" in cmd:
+        print("[~] Calidad solicitada : Audio MP3 320kbps")
+        return
+    match = re.search(r'height<=(\d+)', cmd)
+    if match:
+        h = match.group(1)
+        labels = {"1440": "1440p Quad HD", "1080": "1080p Full HD",
+                  "720": "720p HD", "480": "480p Estandar"}
+        print(f"[~] Calidad solicitada : {labels.get(h, h + 'p')}")
+    else:
+        print("[~] Calidad solicitada : Maxima disponible (4K / Best)")
+
+
 last_cmd = ""
 while True:
     try:
@@ -34,6 +49,9 @@ while True:
             last_cmd = clip
             cmd = clip.replace("##VELOCE##", "").strip()
             print("\n[>] Comando de descarga recibido!")
+            mostrar_calidad_solicitada(cmd)
+            print("    yt-dlp mostrara '[CALIDAD REAL]' justo antes de descargar cada archivo.")
+            print("    Compara ambas lineas para verificar que coincidan.")
 
             rc = subprocess.run(cmd, shell=True).returncode
 
@@ -42,7 +60,7 @@ while True:
                 print("[!] Fallo la descarga. Actualizando yt-dlp a la ultima version...")
                 subprocess.run("pip install --upgrade --quiet yt-dlp", shell=True)
                 cmd2 = cmd if "player_client" in cmd else cmd.replace("yt-dlp", "yt-dlp " + YT_ARGS, 1)
-                print("[~] Reintentando descarga...")
+                print("[~] Reintentando descarga con cliente alterno...")
                 rc = subprocess.run(cmd2, shell=True).returncode
 
             # Autoreparacion Spotify: motor secundario via YouTube Music
@@ -59,7 +77,7 @@ while True:
                         ]).returncode
 
             if rc == 0:
-                print("[OK] Descarga COMPLETADA. Archivo en /sdcard/Download")
+                print("[OK] Descarga COMPLETADA. Archivo guardado en /sdcard/Download")
             else:
                 print("[X] FALLO la descarga. Prueba otra calidad o revisa el enlace.")
     except Exception:
