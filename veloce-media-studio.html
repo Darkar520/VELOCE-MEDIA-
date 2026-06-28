@@ -478,7 +478,7 @@
               <p class="text-[10px] text-slate-400 leading-relaxed">Concede permiso para escribir archivos en el celular e instala Python, FFmpeg y los codecs:</p>
             </div>
             <div class="relative pt-2">
-              <code id="setup-cmd-1" class="block bg-slate-900 p-2.5 rounded text-[9px] font-mono border border-slate-800 text-purple-300 break-all select-all pr-8">termux-setup-storage &amp;&amp; pkg update -y &amp;&amp; pkg install python ffmpeg termux-api -y &amp;&amp; pip install --upgrade yt-dlp spotdl requests beautifulsoup4</code>
+              <code id="setup-cmd-1" class="block bg-slate-900 p-2.5 rounded text-[9px] font-mono border border-slate-800 text-purple-300 break-all select-all pr-8">termux-setup-storage &amp;&amp; pkg update -y &amp;&amp; pkg install python ffmpeg termux-api curl -y &amp;&amp; pip install --upgrade yt-dlp spotdl requests beautifulsoup4</code>
               <button onclick="copyToClipboard('setup-cmd-1')" class="absolute right-2 bottom-2 text-slate-400 hover:text-slate-200">
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
               </button>
@@ -490,76 +490,10 @@
             <div class="space-y-2">
               <span class="w-6 h-6 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center text-xs font-bold">2</span>
               <h4 class="text-xs font-bold text-slate-200">2. Crear Centinela Inteligente</h4>
-              <p class="text-[10px] text-slate-400 leading-relaxed">Crea el archivo `centinela_veloce.py` que recibe tus comandos de la app y tiene autoreparacion automatica si falla la API:</p>
+              <p class="text-[10px] text-slate-400 leading-relaxed">Descarga el centinela ya listo desde tu repositorio (una sola linea, sin problemas al pegar). Trae autoreparacion y arreglo del error 403:</p>
             </div>
             <div class="relative pt-2">
-              <code id="setup-cmd-2" class="block bg-slate-900 p-2.5 rounded text-[9px] font-mono border border-slate-800 text-purple-300 break-all select-all pr-8">cat &lt;&lt; 'EOF' &gt; centinela_veloce.py
-import time, subprocess, re, requests
-from bs4 import BeautifulSoup
-
-print("=========================================================")
-print("[*] El Puente Centinela Veloce esta en linea...")
-print("Selecciona la calidad en la App web y presiona 'Enviar'.")
-print("=========================================================")
-
-YT_ARGS = '--extractor-args "youtube:player_client=tv,web_safari,default" --retries 10 --fragment-retries 10'
-
-def obtener_meta_spotify(url):
-    try:
-        headers = {"User-Agent": "Mozilla/5.0"}
-        r = requests.get(url, headers=headers, timeout=5)
-        soup = BeautifulSoup(r.text, 'html.parser')
-        og_title = soup.find("meta", property="og:title")
-        og_desc = soup.find("meta", property="og:description")
-        if og_title and og_desc:
-            cancion = og_title["content"]
-            desc = og_desc["content"]
-            artista = desc.split("·")[1].strip() if "·" in desc else desc
-            return f"{artista} - {cancion}"
-    except Exception:
-        pass
-    return None
-
-last_cmd = ""
-while True:
-    try:
-        clip = subprocess.check_output(["termux-clipboard-get"]).decode("utf-8").strip()
-        if clip.startswith("##VELOCE##") and clip != last_cmd:
-            last_cmd = clip
-            cmd = clip.replace("##VELOCE##", "").strip()
-            print("\n[>] Comando de descarga recibido!")
-
-            rc = subprocess.run(cmd, shell=True).returncode
-
-            # Autoreparacion yt-dlp: actualiza y reintenta con cliente alterno (arregla el HTTP 403)
-            if rc != 0 and "yt-dlp" in cmd:
-                print("[!] Fallo la descarga. Actualizando yt-dlp a la ultima version...")
-                subprocess.run("pip install --upgrade --quiet yt-dlp", shell=True)
-                cmd2 = cmd if "player_client" in cmd else cmd.replace("yt-dlp", "yt-dlp " + YT_ARGS, 1)
-                print("[~] Reintentando descarga...")
-                rc = subprocess.run(cmd2, shell=True).returncode
-
-            # Autoreparacion Spotify: motor secundario via YouTube Music
-            if rc != 0 and "spotdl" in cmd and "spotify.com" in cmd:
-                print("[!] Spotdl fallo. Motor secundario via YouTube Music...")
-                url_match = re.search(r'https?://[^\s"]+', cmd)
-                if url_match:
-                    meta = obtener_meta_spotify(url_match.group(0))
-                    if meta:
-                        print(f"[?] Cancion identificada: '{meta}'")
-                        rc = subprocess.run([
-                            "yt-dlp", "-x", "--audio-format", "mp3", "--audio-quality", "0",
-                            "-P", "/sdcard/Download", "-o", "%(title)s.%(ext)s", f"ytsearch1:{meta}"
-                        ]).returncode
-
-            if rc == 0:
-                print("[OK] Descarga COMPLETADA. Archivo en /sdcard/Download")
-            else:
-                print("[X] FALLO la descarga. Prueba otra calidad o revisa el enlace.")
-    except Exception:
-        pass
-    time.sleep(1.5)
-EOF</code>
+              <code id="setup-cmd-2" class="block bg-slate-900 p-2.5 rounded text-[9px] font-mono border border-slate-800 text-purple-300 break-all select-all pr-8">curl -fsSL -o centinela_veloce.py https://raw.githubusercontent.com/Darkar520/VELOCE-MEDIA-/main/centinela_veloce.py</code>
               <button onclick="copyToClipboard('setup-cmd-2')" class="absolute right-2 bottom-2 text-slate-400 hover:text-slate-200">
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
               </button>
