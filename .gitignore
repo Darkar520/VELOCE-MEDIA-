@@ -1,0 +1,27 @@
+# Dependencias del backend
+backend/node_modules/
+backend/package-lock.json
+
+# Biblioteca de descargas generada en runtime
+backend/library/
+
+# Binario de aria2 (se descarga aparte, no se versiona)
+backend/bin/
+
+# Descargas de contenido multimedia (no versionar, son enormes)
+DESARGAS/
+DESCARGAS/
+descargas/
+
+# Respaldos locales de referencia (no necesarios en el repo)
+_referencia/
+
+# Editor
+.vscode/
+
+# Logs y temporales
+*.log
+_check.js
+_chk.js
+_test.txt
+_*.txt
