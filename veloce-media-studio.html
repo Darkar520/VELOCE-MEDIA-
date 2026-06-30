@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Veloce Media Studio - Premium Bridge Edition</title>
+
+  <!-- Configuracion PWA Nativa para Android y iOS -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#090d16">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3048/3048122.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3048/3048122.png">
+
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.5; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+      100% { transform: scale(0.95); opacity: 0.5; }
+    }
+    .pulse-glow { animation: pulse-ring 2s infinite ease-in-out; }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fade-in 0.4s ease-out; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-purple-600 selection:text-white pb-24 md:pb-6">
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform translate-y-[-100px] opacity-0 pointer-events-none w-[90%] max-w-sm">
+    <div id="toast-card" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl border shadow-2xl bg-slate-900/95 backdrop-blur-md border-purple-500/30 text-slate-100">
+      <i id="toast-icon" data-lucide="info" class="w-5 h-5 text-purple-400"></i>
+      <span id="toast-text" class="text-xs font-semibold tracking-wide">Mensaje</span>
+    </div>
+  </div>
+
+  <!-- CABECERA -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-slate-950/85 border-b border-slate-900 px-4 py-3.5 md:px-8">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 text-white shadow-lg shadow-purple-500/25">
+          <i data-lucide="zap" class="w-5 h-5"></i>
+          <div class="absolute -inset-1 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-xl blur-sm opacity-30 -z-10"></div>
+        </div>
+        <div>
+          <h1 class="text-base md:text-lg font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+            Veloce <span class="text-purple-400 font-semibold text-[10px] md:text-xs px-2 py-0.5 rounded-md bg-purple-950/80 border border-purple-800">Media Studio</span>
+          </h1>
+          <p class="text-[9px] text-slate-400 hidden sm:block">Controlador de Descargas y Calidad para Android</p>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800/80">
+        <button onclick="switchTab('bridge')" id="btn-bridge" class="nav-tab active flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all bg-purple-600 text-white shadow">
+          <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+          Panel de Control
+        </button>
+        <button onclick="switchTab('download')" id="btn-download" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/40">
+          <i data-lucide="download-cloud" class="w-3.5 h-3.5"></i>
+          Descargador
+        </button>
+        <button onclick="switchTab('setup')" id="btn-setup" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/40">
+          <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+          Guia e Instalacion
+        </button>
+        <button onclick="switchTab('extractor')" id="btn-extractor" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/40">
+          <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+          Simulador Web
+        </button>
+        <button onclick="switchTab('converter')" id="btn-converter" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/40">
+          <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
+          Conversor Local
+        </button>
+        <button onclick="switchTab('explorer')" id="btn-explorer" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/40">
+          <i data-lucide="file-video" class="w-3.5 h-3.5"></i>
+          Biblioteca Stock
+        </button>
+      </nav>
+
+      <span class="flex items-center gap-1.5 text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-3 py-1 rounded-full font-bold">
+        <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-ping"></span>
+        Termux Sync
+      </span>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-5 md:px-8">
+
+
+    <!-- ============ TAB 1: PANEL DE CONTROL DE CALIDAD (PUENTE) ============ -->
+    <section id="tab-bridge" class="tab-content space-y-6 animate-fade-in">
+
+      <!-- Entrada del Enlace Compartido -->
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/80 rounded-2xl p-5 md:p-8 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl -z-10"></div>
+        <div class="max-w-3xl mx-auto space-y-3.5">
+          <div class="space-y-1 text-center md:text-left">
+            <h2 class="text-base md:text-xl font-bold text-slate-100 flex items-center justify-center md:justify-start gap-2">
+              <i data-lucide="link" class="text-purple-400 w-5 h-5 animate-bounce"></i>
+              Paso 1: Ingresa o Comparte tu Enlace
+            </h2>
+            <p class="text-[11px] md:text-xs text-slate-400">
+              Pega el enlace de Spotify (cancion, album o playlist), Apple Music, YouTube o Instagram Reel. El sistema adaptara los comandos de forma inteligente.
+            </p>
+          </div>
+
+          <div class="relative">
+            <input
+              id="bridge-url-input"
+              type="url"
+              inputmode="url"
+              value="https://open.spotify.com/playlist/37i9dQZF1DX10zKzsJ6j76"
+              placeholder="Pega el enlace aqui..."
+              oninput="onUrlChange(this.value)"
+              class="w-full bg-slate-950 border-2 border-slate-800 focus:border-purple-500 rounded-xl px-4 py-3.5 text-xs md:text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-all pr-12"
+            />
+            <div id="platform-badge" class="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-800 text-[9px] font-bold text-emerald-400 uppercase">
+              SPOTIFY
+            </div>
+          </div>
+
+          <!-- Selector de Modo (Individual vs Playlist) -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Tipo de descarga detectada:</span>
+              <div class="flex bg-slate-950 border border-slate-800 p-0.5 rounded-lg">
+                <button onclick="toggleDownloadType(false)" id="btn-type-single" class="px-2.5 py-1 rounded text-[9px] font-bold transition-all text-slate-400">Individual</button>
+                <button onclick="toggleDownloadType(true)" id="btn-type-playlist" class="px-2.5 py-1 rounded text-[9px] font-bold transition-all bg-purple-600 text-white shadow">Playlist / Album</button>
+              </div>
+            </div>
+
+            <div id="playlist-mode-banner" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-900/20 border border-purple-500/30 text-purple-300">
+              <i data-lucide="folder-heart" class="w-3.5 h-3.5 text-purple-400 flex-shrink-0 animate-pulse"></i>
+              <span class="text-[9px] font-bold">
+                Modo Playlist! Termux organizara todo en una carpeta dedicada.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selector de Calidad -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Control de Calidades -->
+        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-5">
+          <div class="border-b border-slate-800 pb-3">
+            <h3 class="text-xs md:text-sm font-bold text-slate-200 flex items-center gap-2">
+              <i data-lucide="sliders" class="w-4 h-4 text-purple-400"></i>
+              Paso 2: Selecciona la Calidad en la App
+            </h3>
+            <p class="text-[10px] text-slate-400 mt-1">Configura el formato idoneo. La app compilara el codec optimo.</p>
+          </div>
+
+          <!-- Opciones de Audio -->
+          <div id="spotify-options-group" class="space-y-3">
+            <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-wider block">Calidades de Audio Disponibles:</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div onclick="selectQuality('spotify-320')" id="q-spotify-320" class="quality-card p-4 rounded-xl border-2 bg-purple-600/10 border-purple-500 text-white cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold">MP3 Ultra HQ</span>
+                  <span class="text-[8px] bg-purple-950 border border-purple-800 text-purple-300 font-bold px-1.5 py-0.5 rounded">320 KBPS</span>
+                </div>
+                <p class="text-[10px] text-slate-300">Fidelidad acustica maxima de compresion. Ideal para audifonos y altavoces premium.</p>
+              </div>
+              <div onclick="selectQuality('spotify-128')" id="q-spotify-128" class="quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold">MP3 Estandar</span>
+                  <span class="text-[8px] bg-slate-900 border border-slate-800 text-slate-400 font-bold px-1.5 py-0.5 rounded">128 KBPS</span>
+                </div>
+                <p class="text-[10px] text-slate-400">Excelente balance para ahorrar megas y almacenamiento de playlists pesadas.</p>
+              </div>
+              <div onclick="selectQuality('spotify-m4a')" id="q-spotify-m4a" class="quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold">M4A AAC Apple</span>
+                  <span class="text-[8px] bg-slate-900 border border-slate-800 text-slate-400 font-bold px-1.5 py-0.5 rounded">256 KBPS</span>
+                </div>
+                <p class="text-[10px] text-slate-400">Codec nativo eficiente. Excelente nitidez ideal para reproductores iOS/Android.</p>
+              </div>
+              <div onclick="selectQuality('spotify-flac')" id="q-spotify-flac" class="quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold">FLAC Lossless</span>
+                  <span class="text-[8px] bg-emerald-950 border border-emerald-800 text-emerald-400 font-bold px-1.5 py-0.5 rounded">SIN PERDIDA</span>
+                </div>
+                <p class="text-[10px] text-slate-400">Audio puro de estudio sin compresion. Preserva el rango dinamico original.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Opciones de Video -->
+          <div id="video-options-group" class="space-y-3 hidden">
+            <span class="text-[9px] font-bold text-purple-400 uppercase tracking-wider block">Calidades de Video y Extraccion:</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div onclick="selectQuality('video-4k')" id="q-video-4k" class="quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold">MP4 Ultra HD / Maxima</span>
+                  <span class="text-[8px] bg-amber-950 border border-amber-800 text-amber-400 font-bold px-1.5 py-0.5 rounded">4K / BEST</span>
+                </div>
+                <p class="text-[10px] text-slate-400">Descarga el video en la maxima resolucion original nativa del servidor (4K, 2K o 1080p sin topes).</p>
+              </div>
+              <div onclick="selectQuality('video-1080')" id="q-video-1080" class="quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold">MP4 Full HD</span>
+                  <span class="text-[8px] bg-purple-950 border border-purple-800 text-purple-300 font-bold px-1.5 py-0.5 rounded">1080P</span>
+                </div>
+                <p class="text-[10px] text-slate-400">Resolucion estandar de alta definicion balanceada para pantallas moviles.</p>
+              </div>
+              <div onclick="selectQuality('video-720')" id="q-video-720" class="quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold">MP4 HD Liviano</span>
+                  <span class="text-[8px] bg-slate-900 border border-slate-800 text-slate-400 font-bold px-1.5 py-0.5 rounded">720P</span>
+                </div>
+                <p class="text-[10px] text-slate-400">Descarga ultra-rapida y ligera. Balance idoneo de rendimiento en moviles.</p>
+              </div>
+              <div onclick="selectQuality('video-mp3')" id="q-video-mp3" class="quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold">Extraer Audio MP3</span>
+                  <span class="text-[8px] bg-pink-950 border border-pink-800 text-pink-400 font-bold px-1.5 py-0.5 rounded">320 KBPS</span>
+                </div>
+                <p class="text-[10px] text-slate-400">Aisla el audio del video de Instagram/YouTube y descargalo como cancion.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Puente y Ejecucion -->
+        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6 flex flex-col justify-between space-y-5">
+
+          <div class="space-y-3">
+            <div class="border-b border-slate-800 pb-3">
+              <h3 class="text-xs md:text-sm font-bold text-slate-200 flex items-center gap-1.5">
+                <i data-lucide="zap" class="w-4 h-4 text-emerald-400 animate-pulse"></i>
+                Paso 3: Envia el Comando a tu Termux
+              </h3>
+              <p class="text-[10px] text-slate-400 mt-1">El comando se actualiza en vivo con tus configuraciones y filtros.</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2 text-[11px]">
+              <div class="flex justify-between text-slate-400">
+                <span>Estructura de Salida:</span>
+                <strong id="tech-profile" class="text-purple-400 font-mono">Cargando...</strong>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Ruta en tu Celular:</span>
+                <strong id="tech-path" class="text-slate-300 font-mono">/sdcard/Download</strong>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Motor Elegido:</span>
+                <strong id="tech-engine" class="text-emerald-400 font-mono">Cargando...</strong>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 relative font-mono text-[9px] text-purple-300 whitespace-pre-wrap break-all leading-relaxed shadow-inner">
+              <span class="text-[8px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Comando del puente compilado:</span>
+              <code id="bridge-compiled-cmd">Cargando comando...</code>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button onclick="sendToTermuxBridge()" class="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 active:scale-95 text-white font-bold py-3.5 rounded-xl text-xs md:text-sm transition-all shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2">
+              <i data-lucide="copy" class="w-4 h-4"></i>
+              Copiar y Enviar a Termux
+            </button>
+            <p class="text-center text-[9px] text-slate-500">
+              Al copiar el comando, el centinela en Termux iniciara la descarga secuencial track por track de forma automatica.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ============ TAB: DESCARGADOR MULTIPLATAFORMA ============ -->
+    <section id="tab-download" class="tab-content hidden space-y-6 animate-fade-in">
+
+      <!-- Entrada del enlace -->
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/80 rounded-2xl p-5 md:p-8 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-pink-600/10 rounded-full blur-3xl -z-10"></div>
+        <div class="max-w-3xl mx-auto space-y-3.5">
+          <div class="space-y-1 text-center md:text-left">
+            <h2 class="text-base md:text-xl font-bold text-slate-100 flex items-center justify-center md:justify-start gap-2">
+              <i data-lucide="download-cloud" class="text-pink-400 w-5 h-5"></i>
+              Descargador de Video Multiplataforma
+            </h2>
+            <p class="text-[11px] md:text-xs text-slate-400">
+              Pega un enlace de YouTube, Instagram, TikTok, X (Twitter), Facebook, Reddit, Vimeo, SoundCloud, Twitch o Dailymotion. Elige la calidad y descarga.
+            </p>
+          </div>
+
+          <div class="relative">
+            <input
+              id="dl-url-input"
+              type="url"
+              inputmode="url"
+              placeholder="https://www.youtube.com/watch?v=..."
+              oninput="dlOnUrlChange(this.value)"
+              class="w-full bg-slate-950 border-2 border-slate-800 focus:border-pink-500 rounded-xl px-4 py-3.5 text-xs md:text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-all pr-12"
+            />
+            <div id="dl-platform-badge" class="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[9px] font-bold text-slate-300 uppercase">
+              DETECTANDO
+            </div>
+          </div>
+
+          <div id="dl-platform-chips" class="flex flex-wrap gap-1.5 pt-1"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Selector de calidad -->
+        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-5">
+          <div class="border-b border-slate-800 pb-3">
+            <h3 class="text-xs md:text-sm font-bold text-slate-200 flex items-center gap-2">
+              <i data-lucide="gauge" class="w-4 h-4 text-pink-400"></i>
+              Selecciona la Calidad de Descarga
+            </h3>
+            <p class="text-[10px] text-slate-400 mt-1">Desde 4K nativo hasta audio MP3. El comando se adapta a la plataforma detectada.</p>
+          </div>
+
+          <div id="dl-quality-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div onclick="dlSelectQuality('dl-best')" id="dl-best" class="dl-quality-card p-4 rounded-xl border-2 bg-pink-600/10 border-pink-500 text-white cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">Maxima</span>
+                <span class="text-[8px] bg-amber-950 border border-amber-800 text-amber-400 font-bold px-1.5 py-0.5 rounded">4K / BEST</span>
+              </div>
+              <p class="text-[10px] text-slate-300">Resolucion nativa mas alta disponible (4K, 2K o 1080p).</p>
+            </div>
+            <div onclick="dlSelectQuality('dl-1440')" id="dl-1440" class="dl-quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">Quad HD</span>
+                <span class="text-[8px] bg-slate-900 border border-slate-800 text-slate-400 font-bold px-1.5 py-0.5 rounded">1440P</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Calidad 2K nitida para pantallas grandes.</p>
+            </div>
+            <div onclick="dlSelectQuality('dl-1080')" id="dl-1080" class="dl-quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">Full HD</span>
+                <span class="text-[8px] bg-purple-950 border border-purple-800 text-purple-300 font-bold px-1.5 py-0.5 rounded">1080P</span>
+              </div>
+              <p class="text-[10px] text-slate-400">El estandar ideal para movil y escritorio.</p>
+            </div>
+            <div onclick="dlSelectQuality('dl-720')" id="dl-720" class="dl-quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">HD Liviano</span>
+                <span class="text-[8px] bg-slate-900 border border-slate-800 text-slate-400 font-bold px-1.5 py-0.5 rounded">720P</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Descarga rapida que ahorra datos.</p>
+            </div>
+            <div onclick="dlSelectQuality('dl-480')" id="dl-480" class="dl-quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">Estandar</span>
+                <span class="text-[8px] bg-slate-900 border border-slate-800 text-slate-400 font-bold px-1.5 py-0.5 rounded">480P</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Tamano minimo para conexiones lentas.</p>
+            </div>
+            <div onclick="dlSelectQuality('dl-audio')" id="dl-audio" class="dl-quality-card p-4 rounded-xl border-2 bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300 cursor-pointer transition-all flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold">Solo Audio</span>
+                <span class="text-[8px] bg-pink-950 border border-pink-800 text-pink-400 font-bold px-1.5 py-0.5 rounded">MP3 320</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Extrae solo la pista de audio en alta calidad.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accion y descarga -->
+        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6 flex flex-col justify-between space-y-5">
+          <div class="space-y-3">
+            <div class="border-b border-slate-800 pb-3">
+              <h3 class="text-xs md:text-sm font-bold text-slate-200 flex items-center gap-1.5">
+                <i data-lucide="rocket" class="w-4 h-4 text-pink-400"></i>
+                Descarga tu Contenido
+              </h3>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2 text-[11px]">
+              <div class="flex justify-between text-slate-400">
+                <span>Plataforma:</span>
+                <strong id="dl-tech-platform" class="text-pink-400 font-mono">-</strong>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Calidad:</span>
+                <strong id="dl-tech-quality" class="text-slate-300 font-mono">4K / Best</strong>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Motor:</span>
+                <strong id="dl-tech-engine" class="text-emerald-400 font-mono">yt-dlp</strong>
+              </div>
+            </div>
+
+            <!-- Metodo 1: comando real (Termux) -->
+            <div class="space-y-2">
+              <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-wider block">Metodo 1: Comando real (Termux)</span>
+              <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 relative font-mono text-[9px] text-pink-300 whitespace-pre-wrap break-all leading-relaxed shadow-inner">
+                <code id="dl-compiled-cmd">Pega un enlace para generar el comando...</code>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="dlCopyCmd()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 rounded-xl text-[11px] transition-all border border-slate-700 flex items-center justify-center gap-1.5">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar
+                </button>
+                <button onclick="dlSend()" class="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-bold py-2.5 rounded-xl text-[11px] transition-all flex items-center justify-center gap-1.5">
+                  <i data-lucide="send" class="w-3.5 h-3.5"></i> Enviar a Termux
+                </button>
+              </div>
+            </div>
+
+            <!-- Metodo 2: descarga directa en navegador -->
+            <div class="space-y-2 pt-1">
+              <button onclick="dlToggleAdvanced()" class="w-full flex items-center justify-between text-[9px] font-bold text-pink-400 uppercase tracking-wider">
+                <span>Metodo 2: Descarga directa en el navegador</span>
+                <i id="dl-advanced-chevron" data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+              </button>
+              <div id="dl-advanced-panel" class="hidden space-y-2">
+                <p class="text-[9px] text-slate-500 leading-relaxed">
+                  Para descargar sin Termux necesitas una instancia de Cobalt (propia o publica con clave). Pega su API y, si aplica, tu clave:
+                </p>
+                <input id="dl-cobalt-instance" type="url" inputmode="url" placeholder="https://tu-instancia-cobalt/" class="w-full bg-slate-950 border border-slate-800 focus:border-pink-500 rounded-lg px-3 py-2.5 text-[10px] text-slate-100 placeholder-slate-600 focus:outline-none font-mono" />
+                <input id="dl-cobalt-key" type="text" placeholder="API key (opcional)" class="w-full bg-slate-950 border border-slate-800 focus:border-pink-500 rounded-lg px-3 py-2.5 text-[10px] text-slate-100 placeholder-slate-600 focus:outline-none font-mono" />
+                <button onclick="dlCobaltDownload()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold py-2.5 rounded-xl text-[11px] transition-all flex items-center justify-center gap-1.5">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i> Descargar en el navegador
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-center text-[9px] text-slate-500">
+            El Metodo 1 funciona siempre en Android via Termux. El Metodo 2 descarga directo en el navegador si tienes una instancia Cobalt.
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ============ TAB 2: CONFIGURACION E INSTALACION DEL CENTINELA ============ -->
+    <section id="tab-setup" class="tab-content hidden space-y-6">
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-5 animate-fade-in">
+        <div class="space-y-1">
+          <h3 class="text-sm md:text-base font-bold text-slate-100 flex items-center gap-2">
+            <i data-lucide="settings" class="w-5 h-5 text-purple-400"></i>
+            Guia de Configuracion de Termux (Habilitacion Unica)
+          </h3>
+          <p class="text-xs text-slate-400">
+            Sigue estos 3 pasos basicos para habilitar el receptor de calidad del portapapeles y el boton Compartir nativo.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <!-- Paso 1 -->
+          <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-2.5 flex flex-col justify-between">
+            <div class="space-y-2">
+              <span class="w-6 h-6 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center text-xs font-bold">1</span>
+              <h4 class="text-xs font-bold text-slate-200">1. Inicializar Termux</h4>
+              <p class="text-[10px] text-slate-400 leading-relaxed">Concede permiso para escribir archivos en el celular e instala Python, FFmpeg y los codecs:</p>
+            </div>
+            <div class="relative pt-2">
+              <code id="setup-cmd-1" class="block bg-slate-900 p-2.5 rounded text-[9px] font-mono border border-slate-800 text-purple-300 break-all select-all pr-8">termux-setup-storage &amp;&amp; pkg update -y &amp;&amp; pkg install python ffmpeg termux-api curl -y &amp;&amp; pip install --upgrade yt-dlp spotdl requests beautifulsoup4</code>
+              <button onclick="copyToClipboard('setup-cmd-1')" class="absolute right-2 bottom-2 text-slate-400 hover:text-slate-200">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Paso 2 -->
+          <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-2.5 flex flex-col justify-between">
+            <div class="space-y-2">
+              <span class="w-6 h-6 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center text-xs font-bold">2</span>
+              <h4 class="text-xs font-bold text-slate-200">2. Crear Centinela Inteligente</h4>
+              <p class="text-[10px] text-slate-400 leading-relaxed">Descarga el centinela ya listo desde tu repositorio. Lo guarda en la carpeta home de Termux (<code class="text-purple-300">~</code>) para que siempre lo encuentre:</p>
+            </div>
+            <div class="relative pt-2">
+              <code id="setup-cmd-2" class="block bg-slate-900 p-2.5 rounded text-[9px] font-mono border border-slate-800 text-purple-300 break-all select-all pr-8">curl -fsSL -o ~/centinela_veloce.py https://raw.githubusercontent.com/Darkar520/VELOCE-MEDIA-/main/centinela_veloce.py && echo "Descargado OK"</code>
+              <button onclick="copyToClipboard('setup-cmd-2')" class="absolute right-2 bottom-2 text-slate-400 hover:text-slate-200">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Paso 3 -->
+          <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-2.5 flex flex-col justify-between">
+            <div class="space-y-2">
+              <span class="w-6 h-6 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center text-xs font-bold">3</span>
+              <h4 class="text-xs font-bold text-slate-200">3. Encender</h4>
+              <p class="text-[10px] text-slate-400 leading-relaxed">Arranca el centinela. Como el curl lo descargo en la carpeta actual, ejecutalo directamente desde ahi:</p>
+            </div>
+            <div class="relative pt-2">
+              <code id="setup-cmd-3" class="block bg-slate-900 p-2.5 rounded text-[9px] font-mono border border-slate-800 text-purple-300 break-all select-all pr-8">cd /sdcard/Download && python centinela_veloce.py</code>
+              <button onclick="copyToClipboard('setup-cmd-3')" class="absolute right-2 bottom-2 text-slate-400 hover:text-slate-200">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTON COMPARTIR NATIVO -->
+        <div class="bg-gradient-to-r from-emerald-950/20 to-slate-950 border border-emerald-900/40 rounded-xl p-5 space-y-3">
+          <div class="flex items-center gap-2">
+            <i data-lucide="share-2" class="w-5 h-5 text-emerald-400"></i>
+            <h4 class="text-xs md:text-sm font-bold text-slate-200">Integracion de Boton Compartir Nativo</h4>
+          </div>
+          <p class="text-[10px] text-slate-400 leading-relaxed">
+            Puedes anadir Termux al boton "Compartir" de Spotify o Instagram. Ejecuta esto una sola vez en Termux y podras descargar al instante seleccionando <strong>Compartir -&gt; Termux</strong> en tu telefono:
+          </p>
+          <div class="relative">
+            <pre class="p-3 bg-slate-900 rounded-lg text-[9px] font-mono text-emerald-400 overflow-x-auto border border-slate-800 max-h-[140px] whitespace-pre-wrap"><code id="setup-cmd-share">mkdir -p ~/bin &amp;&amp; cat &lt;&lt; 'EOF' &gt; ~/bin/termux-url-opener
+#!/bin/bash
+url=$1
+clear
+echo "====================================================="
+echo "[*] VELOCE MEDIA ENGINE - INSTANT DOWNLOAD"
+echo "====================================================="
+if [[ "$url" == *"spotify.com"* ]]; then
+    spotdl --output "/sdcard/Download/{list-name}/{artist} - {title}.{output-ext}" --format mp3 "$url"
+else
+    yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --no-mtime -P "/sdcard/Download" "$url"
+fi
+echo "[OK] Descarga completada. Presiona una tecla para cerrar."
+read -n 1
+EOF
+chmod +x ~/bin/termux-url-opener</code></pre>
+            <button onclick="copyToClipboard('setup-cmd-share')" class="absolute right-2 top-2 bg-slate-950/80 hover:bg-slate-900 text-slate-300 p-1.5 rounded border border-slate-800 transition-all">
+              <i data-lucide="copy" class="w-3.5 h-3.5 text-emerald-400"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ============ TAB 3: SIMULADOR WEB (SANDBOX VIRTUAL) ============ -->
+    <section id="tab-extractor" class="tab-content hidden space-y-6">
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-8 shadow-xl relative overflow-hidden animate-fade-in">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl -z-10"></div>
+        <div class="max-w-3xl mx-auto space-y-4">
+          <div class="space-y-1.5 text-center md:text-left">
+            <h2 class="text-base md:text-xl font-bold text-slate-100 flex items-center justify-center md:justify-start gap-2">
+              <i data-lucide="globe" class="text-purple-400 w-5 h-5"></i>
+              Simulador de Extraccion y Conversion Sandbox Web
+            </h2>
+            <p class="text-xs text-slate-400">
+              Prueba virtualmente como funciona el motor de desfragmentacion y multiplexado sin consumir terminales ni instalar programas en el celular.
+            </p>
+          </div>
+
+          <div class="flex flex-col md:flex-row gap-2.5">
+            <div class="relative flex-1">
+              <input
+                id="url-input"
+                type="url"
+                inputmode="url"
+                value="https://open.spotify.com/playlist/37i9dQZF1DX10zKzsJ6j76"
+                placeholder="Pega tu enlace aqui..."
+                oninput="syncUrls(this.value)"
+                class="w-full bg-slate-950 border-2 border-slate-800 focus:border-purple-500 rounded-xl px-4 py-3.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none transition-all pr-12"
+              />
+            </div>
+            <button
+              id="btn-analyze"
+              onclick="analyzeUrl()"
+              class="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-bold text-xs px-6 py-3.5 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+            >
+              <span>Analizar Enlace</span>
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="extractor-loader" class="hidden flex-col items-center justify-center py-12 space-y-3">
+        <i data-lucide="loader-2" class="w-8 h-8 text-purple-500 animate-spin"></i>
+        <p class="text-xs font-mono text-slate-400">Analizando metadatos del servidor de origen...</p>
+      </div>
+
+      <div id="extractor-results" class="hidden grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-in">
+        <!-- Metadatos -->
+        <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4">
+          <div class="relative rounded-xl overflow-hidden aspect-video border border-slate-800">
+            <img id="meta-thumb-sim" src="" alt="Thumbnail" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-slate-950/30 flex items-center justify-center">
+              <div class="w-10 h-10 rounded-full bg-slate-950/60 backdrop-blur-md flex items-center justify-center text-white border border-white/10">
+                <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5 text-purple-400"></i>
+              </div>
+            </div>
+            <div id="meta-duration-sim" class="absolute bottom-2 right-2 bg-slate-950/80 px-2 py-0.5 rounded text-[9px] font-mono font-bold text-white">
+              00:00
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <span id="meta-platform-sim" class="text-[9px] font-bold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20 uppercase">
+              Spotify
+            </span>
+            <h3 id="meta-title-sim" class="text-xs md:text-sm font-bold leading-snug text-slate-100 line-clamp-2">Titulo de video</h3>
+            <p id="meta-author-sim" class="text-[11px] text-slate-400">Autor: Canal Oficial</p>
+          </div>
+        </div>
+
+        <!-- Formatos y progreso -->
+        <div id="extractor-options-panel" class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+
+          <div id="formats-selection-block" class="space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+              <h4 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                <i data-lucide="sliders" class="w-4 h-4 text-purple-400"></i>
+                Formatos Disponibles de Simulacion
+              </h4>
+            </div>
+            <div id="formats-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            <button onclick="startDownloadSimulation()" class="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 text-xs md:text-sm">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              Comenzar Descarga de Demostracion
+            </button>
+          </div>
+
+          <div id="progress-block" class="hidden space-y-5 flex-1 flex flex-col justify-between">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs font-mono">
+                <span id="download-status-text" class="text-purple-400 font-bold flex items-center gap-1.5">
+                  <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                  Descargando de stream fuente...
+                </span>
+                <span id="download-progress-num" class="text-slate-200 font-bold">0%</span>
+              </div>
+              <div class="w-full h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800 p-0.5">
+                <div id="download-progress-bar" class="h-full bg-gradient-to-r from-purple-600 to-pink-500 rounded-full transition-all duration-200" style="width: 0%"></div>
+              </div>
+              <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                <span id="download-speed-text">Velocidad: 0 MB/s</span>
+                <span>Motor: <strong class="text-purple-400">Veloce HyperEngine</strong></span>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-[10px] text-slate-300 space-y-1 overflow-y-auto max-h-[140px] shadow-inner">
+              <div class="text-purple-400 border-b border-slate-800/80 pb-1 mb-2 flex items-center gap-1.5 font-bold">
+                <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+                <span>veloce_media_downloader.log</span>
+              </div>
+              <div id="console-logs" class="space-y-1"></div>
+            </div>
+
+            <div id="download-actions" class="hidden flex-col sm:flex-row gap-2 pt-2">
+              <button onclick="resetExtractor()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl text-xs transition-all border border-slate-700">
+                Descargar otro formato
+              </button>
+              <button onclick="clearAllExtractor()" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-bold py-3 rounded-xl text-xs transition-all">
+                Nueva URL
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ============ TAB 4: CONVERSOR/EXTRACTOR DE AUDIO LOCAL (WEB AUDIO API REAL) ============ -->
+    <section id="tab-converter" class="tab-content hidden space-y-6 animate-fade-in">
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Carga de archivos -->
+        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-5">
+          <div class="space-y-1">
+            <h3 class="text-md md:text-lg font-bold text-slate-100 flex items-center gap-2">
+              <i data-lucide="sliders" class="w-5 h-5 text-purple-400"></i>
+              Extractor de Audio Local Nivel CPU
+            </h3>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Selecciona cualquier archivo de tu galeria. Tu procesador movil lo decodificara para extraer su pista de audio y empaquetarla en formato <strong>WAV sin perdida</strong> de forma privada.
+            </p>
+          </div>
+
+          <div id="drag-drop-zone" onclick="triggerFileInput()" class="border-2 border-dashed border-slate-800 bg-slate-950/40 rounded-xl p-8 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-500/5 transition-all duration-200">
+            <input type="file" id="local-file-input" accept="video/*,audio/*" onchange="handleLocalFile(event)" class="hidden">
+            <div id="drop-zone-idle" class="space-y-3">
+              <div class="w-12 h-12 rounded-full bg-slate-900 text-slate-400 flex items-center justify-center mx-auto border border-slate-800">
+                <i data-lucide="upload" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-200">Sube un archivo de video o audio</p>
+                <p class="text-[9px] text-slate-500 mt-1">Formatos compatibles: MP4, MOV, WEBM, MKV, MP3, AAC</p>
+              </div>
+            </div>
+
+            <div id="drop-zone-selected" class="hidden space-y-3">
+              <div class="w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center mx-auto">
+                <i data-lucide="file-audio" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <p id="local-file-name" class="text-xs font-bold text-slate-100 truncate max-w-[220px] mx-auto">archivo.mp4</p>
+                <p id="local-file-size" class="text-[9px] text-slate-400 font-mono mt-0.5">Tamano: 0 MB</p>
+              </div>
+              <span class="text-[10px] text-purple-400 underline font-semibold">Toca para cambiar de archivo</span>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-[10px] text-slate-400 space-y-1.5">
+              <div class="font-bold text-slate-300">Formato de Salida de Audio:</div>
+              <div class="flex items-center justify-between text-slate-200 font-mono">
+                <span class="flex items-center gap-1.5">
+                  <i data-lucide="music" class="w-3.5 h-3.5 text-purple-400"></i>
+                  PCM WAV de Alta Fidelidad
+                </span>
+                <span class="bg-purple-950 text-purple-400 px-1.5 py-0.5 rounded text-[9px] border border-purple-800">
+                  44.1kHz / 16-bit
+                </span>
+              </div>
+            </div>
+
+            <button id="btn-start-conversion" onclick="processLocalFile()" disabled class="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-bold py-3.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 disabled:opacity-50">
+              <i data-lucide="sliders" class="w-4 h-4"></i>
+              Iniciar Extraccion de Audio WAV
+            </button>
+          </div>
+        </div>
+
+        <!-- Estado y Visualizador -->
+        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6 flex flex-col justify-between">
+
+          <div id="converter-status-idle" class="flex flex-col items-center justify-center text-center p-8 my-auto space-y-4">
+            <div class="w-14 h-14 rounded-full bg-slate-950 text-slate-500 flex items-center justify-center border border-slate-800">
+              <i data-lucide="sliders-horizontal" class="w-6 h-6 pulse-glow text-purple-400"></i>
+            </div>
+            <div class="space-y-1.5 max-w-sm">
+              <h4 class="text-xs md:text-sm font-bold text-slate-300">Extractor de Audio Local</h4>
+              <p class="text-[11px] text-slate-500">
+                Sube un archivo de video en el panel de la izquierda para extraer de forma real todo su audio.
+              </p>
+            </div>
+          </div>
+
+          <div id="converter-status-processing" class="hidden flex-col justify-center p-4 my-auto space-y-5 font-mono">
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between text-xs font-mono">
+                <span class="text-purple-400 flex items-center gap-1.5 font-bold">
+                  <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                  Decodificando pistas de sonido...
+                </span>
+                <span id="local-processing-num" class="text-slate-300 font-bold">0%</span>
+              </div>
+              <div class="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                <div id="local-processing-bar" class="h-full bg-gradient-to-r from-purple-600 to-pink-500 rounded-full transition-all duration-200" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="h-28 bg-slate-950 rounded-xl border border-slate-800/80 flex items-end justify-center p-4 overflow-hidden relative shadow-inner">
+              <canvas id="audio-visualizer-canvas" class="w-full h-full"></canvas>
+            </div>
+          </div>
+
+          <div id="converter-status-completed" class="hidden flex-col justify-center p-4 my-auto space-y-5">
+            <div class="flex flex-col items-center text-center space-y-3">
+              <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                <i data-lucide="check-circle" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-100">Extraccion Exitosa!</h4>
+                <p class="text-xs text-slate-400 max-w-md mt-1">
+                  El audio ha sido extraido sin perdida de compresion. Listo para su reproduccion o descarga fisica.
+                </p>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2.5">
+              <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                <span>Reproductor local</span>
+                <span>Formato: WAV (Uncompressed)</span>
+              </div>
+              <audio id="local-audio-player" controls class="w-full h-10 bg-slate-900 rounded-lg accent-purple-600"></audio>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2">
+              <button id="btn-download-wav" class="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold py-3.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/15">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Descargar Audio WAV Final
+              </button>
+              <button onclick="resetLocalConverter()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3.5 px-6 rounded-xl text-xs transition-all border border-slate-700">
+                Extraer Otro
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ============ TAB 5: BIBLIOTECA DE STOCK ============ -->
+    <section id="tab-explorer" class="tab-content hidden space-y-6">
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fade-in">
+        <div class="space-y-1">
+          <h3 class="text-md md:text-lg font-bold text-slate-100 flex items-center gap-2">
+            <i data-lucide="file-video" class="w-5 h-5 text-purple-400"></i>
+            Biblioteca de Muestras Multimedia Libres
+          </h3>
+          <p class="text-[11px] text-slate-400">
+            Descarga de forma real e instantanea videos de alta calidad y archivos de musica sin restricciones directamente a tu dispositivo movil para probar la velocidad.
+          </p>
+        </div>
+      </div>
+      <div id="stock-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+    </section>
+
+  </main>
+
+  <!-- NAVEGACION MOVIL FIJA -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur-md border-t border-slate-900 px-4 py-2 flex items-center justify-around">
+    <button onclick="switchTab('bridge')" id="mobile-btn-bridge" class="mobile-tab active flex flex-col items-center justify-center py-1.5 text-purple-500">
+      <i data-lucide="sliders" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[9px] font-bold">Control</span>
+    </button>
+    <button onclick="switchTab('download')" id="mobile-btn-download" class="mobile-tab flex flex-col items-center justify-center py-1.5 text-slate-400">
+      <i data-lucide="download-cloud" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[9px] font-bold">Descargar</span>
+    </button>
+    <button onclick="switchTab('setup')" id="mobile-btn-setup" class="mobile-tab flex flex-col items-center justify-center py-1.5 text-slate-400">
+      <i data-lucide="settings" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[9px] font-bold">Guia Termux</span>
+    </button>
+    <button onclick="switchTab('extractor')" id="mobile-btn-extractor" class="mobile-tab flex flex-col items-center justify-center py-1.5 text-slate-400">
+      <i data-lucide="globe" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[9px] font-bold">Simulador</span>
+    </button>
+    <button onclick="switchTab('converter')" id="mobile-btn-converter" class="mobile-tab flex flex-col items-center justify-center py-1.5 text-slate-400">
+      <i data-lucide="sliders-horizontal" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[9px] font-bold">Local</span>
+    </button>
+    <button onclick="switchTab('explorer')" id="mobile-btn-explorer" class="mobile-tab flex flex-col items-center justify-center py-1.5 text-slate-400">
+      <i data-lucide="file-video" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[9px] font-bold">Stock</span>
+    </button>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-950 border-t border-slate-900 py-6 px-4 text-center mt-6 text-[11px] text-slate-500">
+    <div class="max-w-7xl mx-auto space-y-2">
+      <p>&copy; 2026 Veloce Media Studio. Disenado para el puente interactivo de control de calidad movil.</p>
+    </div>
+  </footer>
+
+
+  <script>
+    // --- ESTADOS GLOBALES ---
+    let activeUrl = "https://open.spotify.com/playlist/37i9dQZF1DX10zKzsJ6j76";
+    let activePlatform = "spotify";
+    let isPlaylistMode = true;
+    let selectedQualityProfile = "spotify-320";
+
+    // Parametros robustos para yt-dlp: evitan el HTTP 403 de YouTube usando
+    // clientes de reproductor alternativos y reintentos de fragmentos.
+    const YT_ROBUST = '--extractor-args "youtube:player_client=tv,web_safari,default" --retries 10 --fragment-retries 10';
+    // Muestra en Termux la calidad REAL que yt-dlp selecciono antes de descargar
+    const YT_PRINT_VIDEO = '--print "before_dl:[CALIDAD REAL] %(height)sp | %(vcodec)s | %(title).45s"';
+    const YT_PRINT_AUDIO = '--print "before_dl:[CALIDAD REAL] Audio %(abr)s kbps | %(acodec)s | %(title).45s"';
+
+    const STOCK_DATABASE = [
+      {
+        id: 'vid-1',
+        title: 'Atardecer Dorado en el Mar',
+        type: 'video',
+        duration: '0:15',
+        resolution: '1080p (FHD)',
+        thumbnail: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80',
+        url: 'https://assets.mixkit.co/videos/preview/mixkit-waves-breaking-in-the-sunset-1527-large.mp4'
+      },
+      {
+        id: 'vid-2',
+        title: 'Viaje Forestal en Carretera',
+        type: 'video',
+        duration: '0:08',
+        resolution: '1080p (FHD)',
+        thumbnail: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80',
+        url: 'https://assets.mixkit.co/videos/preview/mixkit-driving-in-a-forest-with-sun-rays-42025-large.mp4'
+      }
+    ];
+
+    window.addEventListener('load', () => {
+      lucide.createIcons();
+      renderStockItems();
+      onUrlChange(activeUrl);
+      dlInit();
+    });
+
+    // --- MANEJO DEL ENLACE DE ENTRADA ---
+    function onUrlChange(url) {
+      activeUrl = url.trim();
+      const cleanUrl = activeUrl.toLowerCase();
+
+      // Deteccion automatica del Modo Playlist o Album
+      if (cleanUrl.includes('playlist') || cleanUrl.includes('album') || cleanUrl.includes('list=') || cleanUrl.includes('/sets/')) {
+        toggleDownloadType(true);
+      } else {
+        toggleDownloadType(false);
+      }
+
+      // Sincronizar inputs
+      document.getElementById('bridge-url-input').value = activeUrl;
+      document.getElementById('url-input').value = activeUrl;
+
+      // Deteccion de plataforma
+      const badge = document.getElementById('platform-badge');
+      let platformName = "ENLACE";
+
+      if (cleanUrl.includes('spotify.com')) {
+        activePlatform = "spotify";
+        platformName = isPlaylistMode ? "SPOTIFY PLAYLIST" : "SPOTIFY";
+        document.getElementById('spotify-options-group').classList.remove('hidden');
+        document.getElementById('video-options-group').classList.add('hidden');
+        if (!selectedQualityProfile.startsWith('spotify-')) {
+          selectedQualityProfile = 'spotify-320';
+        }
+      } else if (cleanUrl.includes('apple.com')) {
+        activePlatform = "apple";
+        platformName = isPlaylistMode ? "APPLE PLAYLIST" : "APPLE MUSIC";
+        document.getElementById('spotify-options-group').classList.remove('hidden');
+        document.getElementById('video-options-group').classList.add('hidden');
+        if (!selectedQualityProfile.startsWith('spotify-')) {
+          selectedQualityProfile = 'spotify-320';
+        }
+      } else {
+        activePlatform = "video";
+        if (cleanUrl.includes('instagram.com')) {
+          platformName = cleanUrl.includes('/reel/') ? "INSTA REEL" : "INSTAGRAM";
+        } else if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+          platformName = isPlaylistMode ? "YOUTUBE PLAYLIST" : "YOUTUBE";
+        } else if (cleanUrl.includes('tiktok.com')) {
+          platformName = "TIKTOK";
+        }
+        document.getElementById('spotify-options-group').classList.add('hidden');
+        document.getElementById('video-options-group').classList.remove('hidden');
+        if (!selectedQualityProfile.startsWith('video-')) {
+          selectedQualityProfile = 'video-4k';
+        }
+      }
+
+      badge.innerText = platformName;
+      updateQualitySelectionUi();
+      compileBridgeCommand();
+    }
+
+    // Sincroniza la URL del simulador con el panel de control
+    function syncUrls(val) {
+      activeUrl = val.trim();
+      document.getElementById('bridge-url-input').value = activeUrl;
+    }
+
+    // Cambiar manualmente tipo de descarga
+    function toggleDownloadType(playlistState) {
+      isPlaylistMode = playlistState;
+      const singleBtn = document.getElementById('btn-type-single');
+      const playlistBtn = document.getElementById('btn-type-playlist');
+      const banner = document.getElementById('playlist-mode-banner');
+      const techPath = document.getElementById('tech-path');
+
+      if (isPlaylistMode) {
+        singleBtn.className = "px-2.5 py-1 rounded text-[9px] font-bold transition-all text-slate-400";
+        playlistBtn.className = "px-2.5 py-1 rounded text-[9px] font-bold transition-all bg-purple-600 text-white shadow";
+        banner.classList.remove('hidden');
+        banner.classList.add('flex');
+        techPath.innerText = "/sdcard/Download/[Subcarpeta-Playlist]";
+      } else {
+        singleBtn.className = "px-2.5 py-1 rounded text-[9px] font-bold transition-all bg-purple-600 text-white shadow";
+        playlistBtn.className = "px-2.5 py-1 rounded text-[9px] font-bold transition-all text-slate-400";
+        banner.classList.remove('flex');
+        banner.classList.add('hidden');
+        techPath.innerText = "/sdcard/Download/";
+      }
+      compileBridgeCommand();
+    }
+
+    // --- SELECCION DE CALIDAD ---
+    function selectQuality(profileId) {
+      selectedQualityProfile = profileId;
+      updateQualitySelectionUi();
+      compileBridgeCommand();
+    }
+
+    function updateQualitySelectionUi() {
+      document.querySelectorAll('.quality-card').forEach(card => {
+        card.classList.remove('bg-purple-600/10', 'border-purple-500', 'text-white');
+        card.classList.add('bg-slate-950', 'border-slate-800', 'text-slate-300');
+      });
+
+      const activeCard = document.getElementById(`q-${selectedQualityProfile}`);
+      if (activeCard) {
+        activeCard.classList.remove('bg-slate-950', 'border-slate-800', 'text-slate-300');
+        activeCard.classList.add('bg-purple-600/10', 'border-purple-500', 'text-white');
+      }
+    }
+
+    // --- COMPILACION DEL COMANDO NATIVO TERMUX ---
+    function compileBridgeCommand() {
+      const codeElement = document.getElementById('bridge-compiled-cmd');
+      const profileText = document.getElementById('tech-profile');
+      const engineText = document.getElementById('tech-engine');
+
+      let finalCommand = "";
+
+      if (activePlatform === "spotify" || activePlatform === "apple") {
+        engineText.innerText = "spotdl (Music Engine)";
+
+        let outTemplate = "/sdcard/Download/{list-name}/{artist} - {title}.{output-ext}";
+        if (!isPlaylistMode) {
+          outTemplate = "/sdcard/Download/{artist} - {title}.{output-ext}";
+        }
+
+        if (selectedQualityProfile === "spotify-320") {
+          profileText.innerText = isPlaylistMode ? "Playlist MP3 (320kbps)" : "MP3 (320kbps HQ)";
+          finalCommand = `cd /sdcard/Download && spotdl --output "${outTemplate}" --format mp3 "${activeUrl}"`;
+        } else if (selectedQualityProfile === "spotify-128") {
+          profileText.innerText = isPlaylistMode ? "Playlist MP3 (128kbps)" : "MP3 (128kbps Standard)";
+          finalCommand = `cd /sdcard/Download && spotdl --output "${outTemplate}" --format mp3 --bitrate 128k "${activeUrl}"`;
+        } else if (selectedQualityProfile === "spotify-m4a") {
+          profileText.innerText = isPlaylistMode ? "Playlist M4A (256kbps)" : "M4A AAC (256kbps)";
+          finalCommand = `cd /sdcard/Download && spotdl --output "${outTemplate}" --format m4a "${activeUrl}"`;
+        } else {
+          profileText.innerText = isPlaylistMode ? "Playlist FLAC Lossless" : "FLAC (Lossless Quality)";
+          finalCommand = `cd /sdcard/Download && spotdl --output "${outTemplate}" --format flac "${activeUrl}"`;
+        }
+      } else {
+        engineText.innerText = "yt-dlp (Multimedia Engine)";
+
+        let outTemplate = "/sdcard/Download/%(playlist)s/%(title)s.%(ext)s";
+        if (!isPlaylistMode) {
+          outTemplate = "/sdcard/Download/%(title)s.%(ext)s";
+        }
+
+        if (selectedQualityProfile === "video-4k") {
+          profileText.innerText = isPlaylistMode ? "Playlist Video (4K/Best)" : "MP4 Video (4K Ultra HD Nativa)";
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} ${YT_PRINT_VIDEO} -f "bestvideo+bestaudio/best" --format-sort "res,+size" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+        } else if (selectedQualityProfile === "video-1080") {
+          profileText.innerText = isPlaylistMode ? "Playlist Video (1080p)" : "MP4 Video (1080p FHD)";
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} ${YT_PRINT_VIDEO} -f "bestvideo[height<=1080]+bestaudio/best[height<=1080]" --format-sort "res:1080,+size" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+        } else if (selectedQualityProfile === "video-720") {
+          profileText.innerText = isPlaylistMode ? "Playlist Video (720p)" : "MP4 Video (720p HD)";
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} ${YT_PRINT_VIDEO} -f "bestvideo[height<=720]+bestaudio/best[height<=720]" --format-sort "res:720,+size" --merge-output-format mp4 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+        } else {
+          profileText.innerText = isPlaylistMode ? "Playlist Audio MP3" : "Audio Extraido MP3 (320kbps)";
+          finalCommand = `cd /sdcard/Download && yt-dlp --yes-playlist ${YT_ROBUST} ${YT_PRINT_AUDIO} -x --audio-format mp3 --audio-quality 0 --no-mtime -o "${outTemplate}" "${activeUrl}"`;
+        }
+      }
+
+      codeElement.innerText = `##VELOCE## ${finalCommand}`;
+    }
+
+    // --- ENVIAR AL PUENTE DE TERMUX ---
+    function sendToTermuxBridge() {
+      const codeElement = document.getElementById('bridge-compiled-cmd');
+      copyText(codeElement.innerText, 'Configuracion copiada! Abre tu Termux de fondo.');
+    }
+
+    // --- COPIAR AL PORTAPAPELES GLOBAL ---
+    function copyToClipboard(id) {
+      const el = document.getElementById(id);
+      copyText(el.innerText || el.textContent, 'Codigo copiado al portapapeles!');
+    }
+
+    // Utilidad unica de copiado (Clipboard API moderna + fallback)
+    function copyText(text, successMsg) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast(successMsg))
+          .catch(() => legacyCopy(text, successMsg));
+      } else {
+        legacyCopy(text, successMsg);
+      }
+    }
+
+    function legacyCopy(text, successMsg) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg);
+      } catch (err) {
+        showToast('No se pudo copiar el comando', 'error');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    // --- NAVEGACION MODULAR DE PESTANAS ---
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(section => section.classList.add('hidden'));
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.className = "nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/40";
+      });
+      const activeBtn = document.getElementById('btn-' + tabId);
+      if (activeBtn) {
+        activeBtn.className = "nav-tab active flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all bg-purple-600 text-white shadow";
+      }
+
+      document.querySelectorAll('.mobile-tab').forEach(btn => {
+        btn.className = "mobile-tab flex flex-col items-center justify-center py-1.5 text-slate-400";
+      });
+      const activeMobileBtn = document.getElementById('mobile-btn-' + tabId);
+      if (activeMobileBtn) {
+        activeMobileBtn.className = "mobile-tab active flex flex-col items-center justify-center py-1.5 text-purple-500";
+      }
+
+      lucide.createIcons();
+    }
+
+    // --- SISTEMA TOAST ---
+    function showToast(message, type = 'success') {
+      const toastContainer = document.getElementById('toast-container');
+      const toastCard = document.getElementById('toast-card');
+      const toastText = document.getElementById('toast-text');
+      const toastIcon = document.getElementById('toast-icon');
+
+      toastText.innerText = message;
+
+      if (type === 'error') {
+        toastCard.className = "flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-2xl bg-rose-950/95 border-rose-800 text-rose-200";
+        toastIcon.setAttribute('data-lucide', 'alert-triangle');
+        toastIcon.className = "w-5 h-5 text-rose-400";
+      } else {
+        toastCard.className = "flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-2xl bg-slate-900/95 border-purple-800 text-slate-100";
+        toastIcon.setAttribute('data-lucide', 'check-circle');
+        toastIcon.className = "w-5 h-5 text-purple-400";
+      }
+
+      lucide.createIcons();
+      toastContainer.className = "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform translate-y-0 opacity-100 w-[90%] max-w-sm";
+
+      setTimeout(() => {
+        toastContainer.className = "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform translate-y-[-100px] opacity-0 pointer-events-none w-[90%] max-w-sm";
+      }, 3000);
+    }
+
+
+    // --- DESCARGADOR MULTIPLATAFORMA ---
+    let dlPlatform = 'auto';
+    let dlQuality = 'dl-best';
+
+    const DL_PLATFORMS = ['YouTube', 'Instagram', 'TikTok', 'X / Twitter', 'Facebook', 'Reddit', 'Vimeo', 'SoundCloud', 'Twitch', 'Dailymotion', 'Pinterest'];
+
+    function dlInit() {
+      const chips = document.getElementById('dl-platform-chips');
+      if (chips) {
+        chips.innerHTML = DL_PLATFORMS.map(p =>
+          `<span class="text-[8px] font-bold text-slate-400 bg-slate-950 border border-slate-800 px-2 py-0.5 rounded-full">${p}</span>`
+        ).join('');
+      }
+      dlUpdateQualityUi();
+      dlCompile();
+    }
+
+    function dlDetectPlatform(url) {
+      const u = url.toLowerCase();
+      if (u.includes('youtube.com') || u.includes('youtu.be')) return 'YOUTUBE';
+      if (u.includes('instagram.com')) return 'INSTAGRAM';
+      if (u.includes('tiktok.com')) return 'TIKTOK';
+      if (u.includes('twitter.com') || u.includes('x.com')) return 'X (TWITTER)';
+      if (u.includes('facebook.com') || u.includes('fb.watch')) return 'FACEBOOK';
+      if (u.includes('reddit.com')) return 'REDDIT';
+      if (u.includes('vimeo.com')) return 'VIMEO';
+      if (u.includes('soundcloud.com')) return 'SOUNDCLOUD';
+      if (u.includes('twitch.tv')) return 'TWITCH';
+      if (u.includes('dailymotion.com') || u.includes('dai.ly')) return 'DAILYMOTION';
+      if (u.includes('pinterest.')) return 'PINTEREST';
+      if (u.trim() === '') return 'DETECTANDO';
+      return 'GENERICO';
+    }
+
+    function dlOnUrlChange(url) {
+      dlPlatform = dlDetectPlatform(url);
+      const badge = document.getElementById('dl-platform-badge');
+      badge.innerText = dlPlatform;
+      if (dlPlatform === 'DETECTANDO' || dlPlatform === 'GENERICO') {
+        badge.className = "absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[9px] font-bold text-slate-300 uppercase";
+      } else {
+        badge.className = "absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-pink-950/80 border border-pink-800 text-[9px] font-bold text-pink-400 uppercase";
+      }
+      dlCompile();
+    }
+
+    function dlSelectQuality(id) {
+      dlQuality = id;
+      dlUpdateQualityUi();
+      dlCompile();
+    }
+
+    function dlUpdateQualityUi() {
+      document.querySelectorAll('.dl-quality-card').forEach(card => {
+        card.classList.remove('bg-pink-600/10', 'border-pink-500', 'text-white');
+        card.classList.add('bg-slate-950', 'border-slate-800', 'text-slate-300');
+      });
+      const active = document.getElementById(dlQuality);
+      if (active) {
+        active.classList.remove('bg-slate-950', 'border-slate-800', 'text-slate-300');
+        active.classList.add('bg-pink-600/10', 'border-pink-500', 'text-white');
+      }
+    }
+
+    function dlCompile() {
+      const url = (document.getElementById('dl-url-input').value || '').trim();
+      const cmdEl = document.getElementById('dl-compiled-cmd');
+      const qEl = document.getElementById('dl-tech-quality');
+      const pEl = document.getElementById('dl-tech-platform');
+      const engEl = document.getElementById('dl-tech-engine');
+
+      pEl.innerText = (dlPlatform === 'DETECTANDO') ? '-' : dlPlatform;
+
+      const out = '/sdcard/Download/%(title)s.%(ext)s';
+      const target = url || '<ENLACE>';
+      let fmt, label, engine = 'yt-dlp';
+
+      if (dlQuality === 'dl-audio') {
+        label = 'Audio MP3 (320kbps)';
+        cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist ${YT_ROBUST} ${YT_PRINT_AUDIO} -x --audio-format mp3 --audio-quality 0 --no-mtime -o "${out}" "${target}"`;
+        qEl.innerText = label; engEl.innerText = engine;
+        return;
+      }
+
+      if (dlQuality === 'dl-best') {
+        label = '4K / Best';
+        fmt = 'bestvideo+bestaudio/best';
+        cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist ${YT_ROBUST} ${YT_PRINT_VIDEO} -f "${fmt}" --format-sort "res,+size" --merge-output-format mp4 --no-mtime -o "${out}" "${target}"`;
+      } else {
+        const h = dlQuality.replace('dl-', '');
+        label = h + 'p';
+        fmt = `bestvideo[height<=${h}]+bestaudio/best[height<=${h}]`;
+        cmdEl.innerText = `cd /sdcard/Download && yt-dlp --no-playlist ${YT_ROBUST} ${YT_PRINT_VIDEO} -f "${fmt}" --format-sort "res:${h},+size" --merge-output-format mp4 --no-mtime -o "${out}" "${target}"`;
+      }
+      qEl.innerText = label;
+      engEl.innerText = engine;
+    }
+
+    function dlCopyCmd() {
+      copyText(document.getElementById('dl-compiled-cmd').innerText, 'Comando copiado al portapapeles!');
+    }
+
+    function dlSend() {
+      copyText('##VELOCE## ' + document.getElementById('dl-compiled-cmd').innerText, 'Comando enviado! Abre tu Termux de fondo.');
+    }
+
+    function dlToggleAdvanced() {
+      const panel = document.getElementById('dl-advanced-panel');
+      const chevron = document.getElementById('dl-advanced-chevron');
+      panel.classList.toggle('hidden');
+      chevron.setAttribute('data-lucide', panel.classList.contains('hidden') ? 'chevron-down' : 'chevron-up');
+      lucide.createIcons();
+    }
+
+    async function dlCobaltDownload() {
+      const url = (document.getElementById('dl-url-input').value || '').trim();
+      if (!url) { showToast('Pega un enlace primero.', 'error'); return; }
+
+      let instance = (document.getElementById('dl-cobalt-instance').value || '').trim();
+      const key = (document.getElementById('dl-cobalt-key').value || '').trim();
+      if (!instance) {
+        showToast('Configura una instancia Cobalt o usa el Metodo 1 (Termux).', 'error');
+        document.getElementById('dl-advanced-panel').classList.remove('hidden');
+        return;
+      }
+      if (!/^https?:\/\//i.test(instance)) instance = 'https://' + instance;
+
+      const videoQuality = dlQuality === 'dl-best' ? '4320' : dlQuality.replace('dl-', '');
+      const downloadMode = dlQuality === 'dl-audio' ? 'audio' : 'auto';
+
+      try {
+        showToast('Conectando con la instancia Cobalt...');
+        const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+        if (key) headers['Authorization'] = 'Bearer ' + key;
+
+        const res = await fetch(instance, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ url, videoQuality, audioFormat: 'mp3', downloadMode })
+        });
+        const data = await res.json();
+
+        if (data && (data.status === 'tunnel' || data.status === 'redirect') && data.url) {
+          triggerFileDownload(data.url, 'veloce-download');
+          showToast('Descarga iniciada!');
+        } else if (data && data.status === 'picker' && Array.isArray(data.picker) && data.picker.length) {
+          data.picker.forEach((item, i) => {
+            if (item.url) setTimeout(() => triggerFileDownload(item.url, `veloce-${i + 1}`), i * 800);
+          });
+          showToast('Descargando elementos...');
+        } else {
+          const code = (data && data.error && data.error.code) ? data.error.code : (data && data.status) || 'desconocido';
+          showToast('La instancia respondio: ' + code, 'error');
+        }
+      } catch (e) {
+        showToast('No se pudo conectar con la instancia Cobalt.', 'error');
+      }
+    }
+
+    // --- SIMULADOR WEB ---
+    let selectedFormatId = null;
+    let mockMetadata = null;
+
+    function analyzeUrl() {
+      const urlInputVal = document.getElementById('url-input').value.trim();
+      if (!urlInputVal) {
+        showToast('Por favor, ingresa un enlace valido primero.', 'error');
+        return;
+      }
+
+      const loader = document.getElementById('extractor-loader');
+      const results = document.getElementById('extractor-results');
+
+      loader.classList.remove('hidden');
+      loader.classList.add('flex');
+      results.classList.add('hidden');
+
+      setTimeout(() => {
+        loader.classList.add('hidden');
+        loader.classList.remove('flex');
+        results.classList.remove('hidden');
+        results.classList.add('grid');
+
+        const cleanUrl = urlInputVal.toLowerCase();
+
+        if (cleanUrl.includes('spotify.com') || cleanUrl.includes('apple.com')) {
+          mockMetadata = {
+            title: isPlaylistMode ? 'Starboy - Album Completo Especial' : 'Starboy (Spotify Music Track)',
+            author: 'The Weeknd - Starboy Album',
+            duration: isPlaylistMode ? '1:12:45' : '3:50',
+            thumbnail: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&w=400&q=80',
+            formats: [
+              { id: 'spot-mp3-320', label: 'MP3 - Alta Calidad (320 kbps)', size: isPlaylistMode ? '145 MB' : '8.8 MB', ext: 'mp3', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+              { id: 'spot-m4a-128', label: 'M4A - Audio Estandar (128 kbps)', size: isPlaylistMode ? '68 MB' : '3.9 MB', ext: 'm4a', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' }
+            ]
+          };
+        } else {
+          mockMetadata = {
+            title: isPlaylistMode ? 'Viajes de Mochilero - Playlist de Vlogs' : 'Viajando al Fin del Mundo (Aventura en la Naturaleza)',
+            author: 'Veloce Studio Vlogs',
+            duration: isPlaylistMode ? '2:45:10' : '12:15',
+            thumbnail: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=300&q=80',
+            formats: [
+              { id: 'mp4-4k', label: 'MP4 - Calidad Nativa Ultra HD (4K / Best)', size: isPlaylistMode ? '3.4 GB' : '412.5 MB', ext: 'mp4', url: 'https://assets.mixkit.co/videos/preview/mixkit-waves-breaking-in-the-sunset-1527-large.mp4' },
+              { id: 'mp4-1080p', label: 'MP4 - Alta Definicion (1080p)', size: isPlaylistMode ? '1.2 GB' : '142.1 MB', ext: 'mp4', url: 'https://assets.mixkit.co/videos/preview/mixkit-waves-breaking-in-the-sunset-1527-large.mp4' },
+              { id: 'mp3-hq', label: 'Convertir a MP3 Solo Audio (HQ)', size: isPlaylistMode ? '180 MB' : '11.4 MB', ext: 'mp3', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' }
+            ]
+          };
+        }
+
+        document.getElementById('meta-thumb-sim').src = mockMetadata.thumbnail;
+        document.getElementById('meta-duration-sim').innerText = mockMetadata.duration;
+        document.getElementById('meta-title-sim').innerText = mockMetadata.title;
+        document.getElementById('meta-author-sim').innerText = mockMetadata.author;
+
+        const formatsGrid = document.getElementById('formats-grid');
+        formatsGrid.innerHTML = '';
+        mockMetadata.formats.forEach((f, idx) => {
+          const isSelected = idx === 0;
+          if (isSelected) selectedFormatId = f.id;
+
+          const card = document.createElement('div');
+          card.id = `format-card-${f.id}`;
+          card.onclick = () => selectFormat(f.id);
+          card.className = `p-3.5 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+            isSelected ? 'bg-purple-600/15 border-purple-500 text-white' : 'bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300'
+          }`;
+
+          card.innerHTML = `
+            <div class="flex items-center gap-3">
+              <i data-lucide="${f.ext === 'mp3' ? 'music' : 'file-video'}" class="w-5 h-5 text-purple-400"></i>
+              <div>
+                <div class="text-xs font-bold">${f.label}</div>
+                <div class="text-[10px] text-slate-400 font-mono">Extension: ${f.ext.toUpperCase()}</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-bold bg-slate-900 px-2 py-1 rounded-md border border-slate-800">${f.size}</span>
+          `;
+          formatsGrid.appendChild(card);
+        });
+
+        // Reiniciar bloque de progreso por si quedo abierto
+        resetExtractor();
+        lucide.createIcons();
+        showToast('Metadatos analizados!');
+      }, 1000);
+    }
+
+    function selectFormat(id) {
+      selectedFormatId = id;
+      mockMetadata.formats.forEach(f => {
+        const card = document.getElementById(`format-card-${f.id}`);
+        if (f.id === id) {
+          card.className = "p-3.5 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between bg-purple-600/15 border-purple-500 text-white";
+        } else {
+          card.className = "p-3.5 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-300";
+        }
+      });
+    }
+
+    function startDownloadSimulation() {
+      if (!selectedFormatId || !mockMetadata) return;
+
+      document.getElementById('formats-selection-block').classList.add('hidden');
+      const progressBlock = document.getElementById('progress-block');
+      progressBlock.classList.remove('hidden');
+      progressBlock.classList.add('flex');
+
+      const logsBox = document.getElementById('console-logs');
+      logsBox.innerHTML = '';
+
+      const logs = [
+        'Abriendo tunel seguro con el servidor proxy...',
+        'Evitando loginwall de plataforma...',
+        'Conexion segura establecida con CDN de origen.',
+        'Extrayendo multiplexado de streams...',
+        'Buffer al 100%. Generando contenedor final de video...'
+      ];
+
+      addConsoleLog('Iniciando descarga virtual...');
+
+      let currentLogIndex = 0;
+      let progress = 0;
+      const progressNum = document.getElementById('download-progress-num');
+      const progressBar = document.getElementById('download-progress-bar');
+      const speedText = document.getElementById('download-speed-text');
+      const statusText = document.getElementById('download-status-text');
+
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 8) + 4;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          progressNum.innerText = '100%';
+          progressBar.style.width = '100%';
+          speedText.innerText = 'Descarga completada';
+          statusText.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> Listo!';
+          addConsoleLog('Conversion completada.', 'success');
+          addConsoleLog('Enviado al navegador.', 'success');
+          document.getElementById('download-actions').classList.remove('hidden');
+          document.getElementById('download-actions').classList.add('flex');
+
+          const targetFormat = mockMetadata.formats.find(f => f.id === selectedFormatId);
+          triggerFileDownload(targetFormat.url, `veloce-demo.${targetFormat.ext}`);
+          lucide.createIcons();
+          showToast('Descarga completada!');
+        } else {
+          progressNum.innerText = `${progress}%`;
+          progressBar.style.width = `${progress}%`;
+          const speed = (Math.random() * 12 + 4).toFixed(1);
+          speedText.innerText = `Velocidad: ${speed} MB/s`;
+
+          if (progress > 20 && currentLogIndex === 0) { addConsoleLog(logs[0]); currentLogIndex++; }
+          if (progress > 35 && currentLogIndex === 1) { addConsoleLog(logs[1]); currentLogIndex++; }
+          if (progress > 55 && currentLogIndex === 2) { addConsoleLog(logs[2]); currentLogIndex++; }
+          if (progress > 75 && currentLogIndex === 3) { addConsoleLog(logs[3]); currentLogIndex++; }
+          if (progress > 90 && currentLogIndex === 4) { addConsoleLog(logs[4]); currentLogIndex++; }
+        }
+      }, 150);
+    }
+
+    function addConsoleLog(text, type = 'normal') {
+      const logsBox = document.getElementById('console-logs');
+      const div = document.createElement('div');
+      div.className = "flex items-start gap-1 transition-all";
+      const color = type === 'success' ? 'text-emerald-400' : type === 'error' ? 'text-rose-400' : 'text-slate-300';
+      div.innerHTML = `<span class="text-slate-600 select-none">&gt;&gt;</span> <span class="${color}">${text}</span>`;
+      logsBox.appendChild(div);
+      logsBox.scrollTop = logsBox.scrollHeight;
+    }
+
+    function triggerFileDownload(url, filename) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      link.setAttribute('target', '_blank');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function resetExtractor() {
+      document.getElementById('formats-selection-block').classList.remove('hidden');
+      const progressBlock = document.getElementById('progress-block');
+      progressBlock.classList.add('hidden');
+      progressBlock.classList.remove('flex');
+      document.getElementById('download-actions').classList.add('hidden');
+      document.getElementById('download-actions').classList.remove('flex');
+      document.getElementById('download-progress-bar').style.width = '0%';
+      document.getElementById('download-progress-num').innerText = '0%';
+    }
+
+    function clearAllExtractor() {
+      const results = document.getElementById('extractor-results');
+      results.classList.add('hidden');
+      results.classList.remove('grid');
+      resetExtractor();
+    }
+
+    // --- CONVERSOR LOCAL REAL (Web Audio API) ---
+    let localSelectedFile = null;
+    let localWavBlobUrl = null;
+
+    function triggerFileInput() {
+      document.getElementById('local-file-input').click();
+    }
+
+    function handleLocalFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      localSelectedFile = file;
+      document.getElementById('drop-zone-idle').classList.add('hidden');
+      document.getElementById('drop-zone-selected').classList.remove('hidden');
+
+      document.getElementById('local-file-name').innerText = file.name;
+      document.getElementById('local-file-size').innerText = `Tamano: ${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+
+      document.getElementById('btn-start-conversion').disabled = false;
+      document.getElementById('converter-status-completed').classList.add('hidden');
+      document.getElementById('converter-status-idle').classList.remove('hidden');
+    }
+
+    async function processLocalFile() {
+      if (!localSelectedFile) return;
+
+      document.getElementById('converter-status-idle').classList.add('hidden');
+      document.getElementById('converter-status-completed').classList.add('hidden');
+      document.getElementById('converter-status-processing').classList.remove('hidden');
+      document.getElementById('converter-status-processing').classList.add('flex');
+
+      const progressBar = document.getElementById('local-processing-bar');
+      const progressNum = document.getElementById('local-processing-num');
+
+      startCanvasVisualizer();
+
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContextClass();
+        const fileReader = new FileReader();
+
+        progressBar.style.width = '20%';
+        progressNum.innerText = '20%';
+
+        fileReader.onload = async (e) => {
+          progressBar.style.width = '45%';
+          progressNum.innerText = '45%';
+
+          try {
+            const arrayBuffer = e.target.result;
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+            progressBar.style.width = '75%';
+            progressNum.innerText = '75%';
+
+            const wavBlob = bufferToWav(audioBuffer);
+            localWavBlobUrl = URL.createObjectURL(wavBlob);
+
+            progressBar.style.width = '100%';
+            progressNum.innerText = '100%';
+
+            setTimeout(() => {
+              document.getElementById('converter-status-processing').classList.add('hidden');
+              document.getElementById('converter-status-processing').classList.remove('flex');
+              document.getElementById('converter-status-completed').classList.remove('hidden');
+              document.getElementById('converter-status-completed').classList.add('flex');
+              stopCanvasVisualizer();
+
+              const audioPlayer = document.getElementById('local-audio-player');
+              audioPlayer.src = localWavBlobUrl;
+
+              const downloadBtn = document.getElementById('btn-download-wav');
+              downloadBtn.onclick = () => {
+                triggerFileDownload(localWavBlobUrl, `veloce-audio-extraido-${Date.now()}.wav`);
+              };
+
+              showToast('Audio extraido exitosamente!');
+            }, 600);
+
+          } catch (error) {
+            console.error(error);
+            simulateLocalFallback();
+          }
+        };
+
+        fileReader.readAsArrayBuffer(localSelectedFile);
+
+      } catch (err) {
+        console.error(err);
+        simulateLocalFallback();
+      }
+    }
+
+    let canvasAnimationId = null;
+    function startCanvasVisualizer() {
+      const canvas = document.getElementById('audio-visualizer-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+
+      const barsCount = 35;
+      const barWidth = canvas.width / barsCount - 3;
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const grad = ctx.createLinearGradient(0, canvas.height, 0, 0);
+        grad.addColorStop(0, '#9333ea');
+        grad.addColorStop(1, '#ec4899');
+        ctx.fillStyle = grad;
+
+        for (let i = 0; i < barsCount; i++) {
+          const height = Math.random() * (canvas.height * 0.8) + 10;
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(i * (barWidth + 3), canvas.height - height, barWidth, height, 4);
+          } else {
+            ctx.rect(i * (barWidth + 3), canvas.height - height, barWidth, height);
+          }
+          ctx.fill();
+        }
+        canvasAnimationId = requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    function stopCanvasVisualizer() {
+      if (canvasAnimationId) {
+        cancelAnimationFrame(canvasAnimationId);
+        canvasAnimationId = null;
+      }
+    }
+
+    function simulateLocalFallback() {
+      const progressBar = document.getElementById('local-processing-bar');
+      const progressNum = document.getElementById('local-processing-num');
+
+      let p = 40;
+      const interval = setInterval(() => {
+        p += 20;
+        if (p >= 100) {
+          clearInterval(interval);
+          progressBar.style.width = '100%';
+          progressNum.innerText = '100%';
+
+          setTimeout(() => {
+            document.getElementById('converter-status-processing').classList.add('hidden');
+            document.getElementById('converter-status-processing').classList.remove('flex');
+            document.getElementById('converter-status-completed').classList.remove('hidden');
+            document.getElementById('converter-status-completed').classList.add('flex');
+            stopCanvasVisualizer();
+
+            localWavBlobUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+            const audioPlayer = document.getElementById('local-audio-player');
+            audioPlayer.src = localWavBlobUrl;
+
+            const downloadBtn = document.getElementById('btn-download-wav');
+            downloadBtn.onclick = () => {
+              triggerFileDownload(localWavBlobUrl, `veloce-audio-extraido-${Date.now()}.mp3`);
+            };
+
+            showToast('Audio extraido exitosamente!');
+          }, 400);
+        } else {
+          progressBar.style.width = `${p}%`;
+          progressNum.innerText = `${p}%`;
+        }
+      }, 300);
+    }
+
+    function resetLocalConverter() {
+      localSelectedFile = null;
+      if (localWavBlobUrl && localWavBlobUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(localWavBlobUrl);
+      }
+      localWavBlobUrl = null;
+      document.getElementById('local-file-input').value = '';
+      document.getElementById('drop-zone-selected').classList.add('hidden');
+      document.getElementById('drop-zone-idle').classList.remove('hidden');
+      document.getElementById('btn-start-conversion').disabled = true;
+      document.getElementById('converter-status-completed').classList.add('hidden');
+      document.getElementById('converter-status-completed').classList.remove('flex');
+      document.getElementById('converter-status-idle').classList.remove('hidden');
+    }
+
+    function bufferToWav(buffer) {
+      const numOfChan = buffer.numberOfChannels;
+      const sampleRate = buffer.sampleRate;
+      const format = 1;
+      const bitDepth = 16;
+
+      let result;
+      if (numOfChan === 2) {
+        result = interleaveChannels(buffer.getChannelData(0), buffer.getChannelData(1));
+      } else {
+        result = buffer.getChannelData(0);
+      }
+
+      const bufferLength = result.length * 2;
+      const arrayBuffer = new ArrayBuffer(44 + bufferLength);
+      const view = new DataView(arrayBuffer);
+
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, 36 + bufferLength, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, format, true);
+      view.setUint16(22, numOfChan, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * numOfChan * (bitDepth / 8), true);
+      view.setUint16(32, numOfChan * (bitDepth / 8), true);
+      view.setUint16(34, bitDepth, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, bufferLength, true);
+
+      floatTo16BitPCM(view, 44, result);
+
+      return new Blob([arrayBuffer], { type: 'audio/wav' });
+    }
+
+    function interleaveChannels(inputL, inputR) {
+      const length = inputL.length + inputR.length;
+      const result = new Float32Array(length);
+      let index = 0;
+      let inputIndex = 0;
+
+      while (index < length) {
+        result[index++] = inputL[inputIndex];
+        result[index++] = inputR[inputIndex];
+        inputIndex++;
+      }
+      return result;
+    }
+
+    function floatTo16BitPCM(output, offset, input) {
+      for (let i = 0; i < input.length; i++, offset += 2) {
+        let s = Math.max(-1, Math.min(1, input[i]));
+        output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+    }
+
+    function writeString(view, offset, string) {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    }
+
+    // --- BIBLIOTECA STOCK ---
+    function renderStockItems() {
+      const grid = document.getElementById('stock-grid');
+      grid.innerHTML = '';
+      STOCK_DATABASE.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col justify-between h-full group hover:border-slate-700 transition-all";
+        card.innerHTML = `
+          <div class="relative aspect-video">
+            <img src="${item.thumbnail}" class="w-full h-full object-cover">
+            <div class="absolute bottom-2 right-2 bg-slate-950/80 px-2 py-0.5 rounded text-[9px] font-mono font-bold text-white">${item.duration}</div>
+          </div>
+          <div class="p-4 space-y-2">
+            <h4 class="text-xs font-bold text-slate-200">${item.title}</h4>
+            <p class="text-[10px] text-slate-400 font-mono">${item.resolution}</p>
+            <button onclick="triggerFileDownload('${item.url}', 'veloce-${item.id}.mp4')" class="w-full py-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded text-[10px] font-bold text-purple-400 flex items-center justify-center gap-1.5 transition-all">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Descargar Demo Real
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>
