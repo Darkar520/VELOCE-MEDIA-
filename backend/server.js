@@ -75,6 +75,11 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
+// --- SERVIR FRONTEND (archivos estáticos) ---
+// Los archivos del frontend (index.html, assets/) están en la raíz del repositorio (un nivel arriba de backend/)
+const FRONTEND_DIR = path.join(__dirname, '..');
+app.use('/assets', express.static(path.join(FRONTEND_DIR, 'assets')));
+
 // Directorio de descarga para la biblioteca local
 const DOWNLOAD_DIR = path.join(__dirname, 'library');
 if (!fs.existsSync(DOWNLOAD_DIR)) {
@@ -865,6 +870,11 @@ function runHybridEngineSimulation(job) {
     }
   }, 2200);
 }
+
+// --- RUTA CATCH-ALL: Sirve el index.html del frontend para cualquier ruta que no sea API ---
+app.get('*', (req, res) => {
+  res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
+});
 
 // Inicialización de la consola del servidor
 app.listen(PORT, () => {
