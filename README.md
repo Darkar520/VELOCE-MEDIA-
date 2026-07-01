@@ -1,64 +1,141 @@
-# Veloce Media Studio
+# 🎬 Veloce Media Studio
 
-Centro de control unificado para descarga y conversion de contenido multimedia,
-optimizado para Android (via Termux) con un backend opcional para busqueda y
-descarga de peliculas, series y anime.
+Centro de control unificado para **descarga y conversión de contenido multimedia**,
+optimizado para Android (vía Termux) y escritorio. Incluye un buscador de películas,
+series y anime con descarga real integrada.
 
-## Estructura
+> **Aviso:** Proyecto educativo / de laboratorio. Úsalo únicamente con contenido que
+> tengas derecho a descargar. El autor no se responsabiliza por el uso indebido.
+
+---
+
+## ✨ Características
+
+- **Panel de control de calidad** para música (Spotify / Apple Music / YouTube) vía puente Termux.
+- **Descargador multiplataforma** (YouTube, Instagram, TikTok, X, Facebook, etc.).
+- **Buscador de contenido** de películas, series y anime:
+  - Fuentes reales: **The Pirate Bay, YTS, Nyaa.si, 1337x, SolidTorrents**.
+  - Filtro estricto anti-basura (descarta gameplays, clips, música, etc.).
+  - Resultados divididos por **Películas / Series / Anime** con conteos.
+  - Selección de **temporada, capítulo, calidad, idioma y subtítulos**.
+- **Descarga real integrada** en el backend (motor **aria2** con respaldo **WebTorrent**):
+  - Progreso en vivo (SSE), botón de cancelar, y guardado automático en el navegador.
+- **Subtítulos reales** vía OpenSubtitles (descarga el `.srt` en el idioma elegido).
+- **Simulador web**, **conversor de audio local** (Web Audio API) y **biblioteca de muestras**.
+
+---
+
+## 🧱 Arquitectura
+
+```
+┌─────────────────────┐         HTTP / SSE          ┌──────────────────────────┐
+│   Frontend (SPA)    │  ───────────────────────▶   │   Backend (Node/Express) │
+│   frontend/         │   /api/search, /download,   │   backend/server.js      │
+│   index.html + JS   │   /file, /subtitles ...     │   aria2 · WebTorrent      │
+└─────────────────────┘                             │   OpenSubtitles           │
+                                                     └──────────────────────────┘
+```
+
+- **Frontend:** una sola página (`index.html`) con Tailwind y Lucide **vendorizados**
+  (no depende de CDNs externos).
+- **Backend:** microservicio Express que agrega búsquedas de varias fuentes, descarga
+  torrents con aria2/WebTorrent y sirve el archivo final + subtítulos.
+
+---
+
+## 📁 Estructura del proyecto
 
 ```
 .
-├── index.html              # App web unificada (frontend, 7 modulos)
-├── centinela_veloce.py     # Centinela para Termux (musica + video)
-├── backend/                # Microservicio Node.js (busqueda + descarga real)
-│   ├── server.js
-│   └── package.json
-└── _referencia/            # Versiones previas (solo referencia, no se usan)
+├── frontend/
+│   ├── index.html            # Aplicación web (7 módulos)
+│   └── assets/               # Tailwind y Lucide vendorizados
+│       ├── tailwind.js
+│       └── lucide.js
+├── backend/
+│   ├── server.js             # Microservicio de búsqueda + descarga
+│   ├── package.json
+│   └── .env.example
+├── termux/
+│   └── centinela_veloce.py   # Centinela para Termux (puente de música/video)
+├── README.md
+├── LICENSE
+└── .gitignore
 ```
 
-## Modulos del frontend (`index.html`)
+---
 
-1. **Panel de Control** – Puente de calidad para Spotify / Apple Music / YouTube.
-2. **Descargador** – Descarga de YouTube, Instagram, TikTok, X, Facebook, etc. (yt-dlp / Cobalt).
-3. **Buscar Contenido** – Busqueda y descarga de peliculas, series y anime (The Pirate Bay, YTS, Nyaa.si, 1337x, SolidTorrents) con filtro estricto anti-basura.
-4. **Guia e Instalacion** – Setup del centinela de Termux.
-5. **Simulador Web** – Sandbox de extraccion sin instalar nada.
-6. **Conversor Local** – Extraccion/conversion de audio con Web Audio API.
-7. **Biblioteca Stock** – Muestras de contenido.
+## ⚙️ Requisitos
 
-El frontend es un solo archivo HTML. Solo abrelo en el navegador.
+- **Node.js** 18+ (probado con Node 24).
+- **aria2** para descargas rápidas (opcional pero recomendado):
+  - Termux/Linux: `pkg install aria2` o `apt install aria2`
+  - Windows: descarga el binario de [aria2](https://github.com/aria2/aria2/releases) y colócalo en `backend/bin/aria2c.exe`
+  - Si no está aria2, el backend usa WebTorrent automáticamente.
 
-## Backend de busqueda (opcional)
+---
 
-La pestaña **Buscar Contenido** funciona en dos modos:
+## 🚀 Instalación y ejecución
 
-- **Simulado** (por defecto): resultados de demostracion, sin servidor.
-- **Servidor Local**: busqueda y descarga reales contra el microservicio Node.
-
-Para activar el modo real:
+### 1. Backend (búsqueda + descarga)
 
 ```bash
 cd backend
 npm install
-npm start
+npm start           # arranca en http://localhost:4000
 ```
 
-El servicio queda activo en `http://localhost:4000`. Luego, en la pestaña
-**Buscar Contenido**, cambia el modo a **Servidor Local**.
+El puerto es configurable: `PORT=5000 npm start` (ver `.env.example`).
 
-> El backend descarga el torrent con **WebTorrent** (motor P2P real: TCP/uTP/DHT),
-> guarda el archivo en `backend/library/` y lo sirve al navegador para que quede
-> en tu carpeta de Descargas. Si WebTorrent no carga, cae a un modo de respaldo.
+### 2. Frontend
 
-Endpoints:
+Sirve la carpeta `frontend/` con cualquier servidor estático:
 
-- `GET  /api/health` – estado del servicio (incluye si WebTorrent esta activo)
-- `GET  /api/search?query=<texto>&type=<all|movies|tv|anime>`
-- `POST /api/download` – body `{ magnet, title, size, source }`
-- `GET  /api/download/progress/:jobId` – progreso en vivo (SSE)
-- `GET  /api/file/:jobId` – descarga el archivo ya bajado hacia el navegador
+```bash
+# desde la raíz del proyecto
+npx http-server frontend -p 8080 -c-1
+```
 
-## Termux (Android)
+Luego abre **http://localhost:8080/index.html**.
 
-Sigue la pestaña **Guia e Instalacion** dentro de la app para configurar
-`centinela_veloce.py` y el boton Compartir nativo.
+> El frontend detecta el backend automáticamente. En la pestaña **Buscar Contenido**
+> verás el estado "Backend conectado" cuando el servicio esté activo.
+
+---
+
+## 🔌 API del backend
+
+| Método | Endpoint                          | Descripción                                  |
+|--------|-----------------------------------|----------------------------------------------|
+| GET    | `/api/health`                     | Estado y motor activo (aria2 / webtorrent)   |
+| GET    | `/api/search?query=&type=`        | Búsqueda unificada (all/movies/tv/anime)     |
+| POST   | `/api/download`                   | Inicia descarga `{ magnet, title, size }`    |
+| GET    | `/api/download/progress/:jobId`   | Progreso en vivo (SSE)                        |
+| POST   | `/api/download/:jobId/cancel`     | Cancela una descarga y borra lo parcial      |
+| GET    | `/api/file/:jobId`                | Sirve el archivo descargado al navegador     |
+| GET    | `/api/subtitles?query=&lang=`     | Busca subtítulos (OpenSubtitles)             |
+| GET    | `/api/subtitle/get?u=&n=`         | Descarga y descomprime un `.srt`             |
+
+---
+
+## 📱 Termux (Android)
+
+El módulo **Guía e Instalación** dentro de la app genera los comandos para configurar
+`termux/centinela_veloce.py` y el botón "Compartir" nativo. Para descargas de contenido,
+basta con `pkg install aria2` y ejecutar el backend con `node server.js` en Termux.
+
+---
+
+## ⚠️ Limitaciones conocidas
+
+- La velocidad y disponibilidad de una descarga dependen de los **seeds** del torrent.
+- El audio en un idioma específico depende de que exista un release doblado; usa los
+  chips **Latino / Castellano / Dual** para encontrarlos. Los **subtítulos** siempre se
+  obtienen aparte vía OpenSubtitles.
+- 1337x genera un magnet aproximado (las fuentes con magnet real son TPB, YTS, Nyaa y SolidTorrents).
+
+---
+
+## 📄 Licencia
+
+[MIT](./LICENSE) © 2026 Darkar520
