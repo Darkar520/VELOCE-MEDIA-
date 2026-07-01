@@ -1,16 +1,20 @@
 {
   "name": "veloce-media-backend",
-  "version": "1.0.0",
-  "description": "Microservicio de busqueda e ingesta multimedia para Veloce Media Studio",
+  "version": "2.0.0",
+  "description": "Microservicio de búsqueda e ingesta multimedia para Veloce Media Studio",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
-    "axios": "^1.7.2",
-    "cheerio": "^1.0.0",
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "webtorrent": "^2.8.5"
+    "axios": "1.7.2",
+    "cheerio": "1.0.0",
+    "cors": "2.8.5",
+    "express": "4.19.2",
+    "webtorrent": "2.8.5"
   }
 }
