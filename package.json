@@ -1,0 +1,12 @@
+{
+  "name": "veloce-media-studio",
+  "version": "2.0.0",
+  "description": "Veloce Media Studio - Centro de control multimedia unificado",
+  "scripts": {
+    "start": "node backend/server.js",
+    "install-backend": "cd backend && npm install"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
